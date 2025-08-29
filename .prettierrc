@@ -1,10 +1,7 @@
 {
   "printWidth": 120,
-  "tabWidth": 4,
-  "plugins": [
-    "@trivago/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss"
-  ],
+  "tabWidth": 2,
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
 
   "importOrder": [
     "reflect-metadata",
