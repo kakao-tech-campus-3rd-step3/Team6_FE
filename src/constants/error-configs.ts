@@ -21,6 +21,18 @@ export const ERROR_CONFIGS = {
     statusCode: 500,
     defaultMessage: "서버 오류입니다.",
   },
+  BAD_GATEWAY: {
+    statusCode: 502,
+    defaultMessage: "게이트웨이 오류입니다.",
+  },
+  SERVICE_UNAVAILABLE: {
+    statusCode: 503,
+    defaultMessage: "서비스를 일시적으로 사용할 수 없습니다.",
+  },
+  GATEWAY_TIMEOUT: {
+    statusCode: 504,
+    defaultMessage: "게이트웨이 응답 시간이 초과되었습니다.",
+  },
   NETWORK_ERROR: {
     statusCode: undefined,
     defaultMessage: "네트워크 요청이 실패하였습니다.",

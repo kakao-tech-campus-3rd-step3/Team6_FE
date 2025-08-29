@@ -1,17 +1,20 @@
 export interface ErrorConfig {
-    code:string;
-    statusCode?:number;
-    message:string;
-    metadata?:Record<string,unknown>;
+  code: ErrorCode;
+  statusCode?: number;
+  message: string;
+  metadata?: Record<string, unknown>;
 }
 
-export type ErrorCode = 
-  | 'BAD_REQUEST'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'SERVER_ERROR'
-  | 'NETWORK_ERROR'
-  | 'TOKEN_EXPIRED'
-  | 'VALIDATION_ERROR'
-  | 'UNKNOWN_ERROR';
+export type ErrorCode =
+  | "BAD_REQUEST"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "SERVER_ERROR"
+  | "BAD_GATEWAY"
+  | "SERVICE_UNAVAILABLE"
+  | "GATEWAY_TIMEOUT"
+  | "NETWORK_ERROR"
+  | "TOKEN_EXPIRED"
+  | "VALIDATION_ERROR"
+  | "UNKNOWN_ERROR";

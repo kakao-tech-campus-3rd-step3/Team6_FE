@@ -10,9 +10,9 @@ const statusCodeMap: Record<number, ErrorCode> = {
         404: "NOT_FOUND",
         422: "VALIDATION_ERROR",
         500: "SERVER_ERROR",
-        502: "SERVER_ERROR",
-        503: "SERVER_ERROR", 
-        504: "SERVER_ERROR",
+        502: "BAD_GATEWAY",
+        503: "SERVICE_UNAVAILABLE",
+        504: "GATEWAY_TIMEOUT",
       };
 
 export class ErrorFactory{
@@ -20,11 +20,12 @@ export class ErrorFactory{
         code:ErrorCode,
         message?:string,
         metadata?:Record<string,unknown>,
+        statusCode?:number,
     ):ApiError{
         const config = ERROR_CONFIGS[code] ?? ERROR_CONFIGS.UNKNOWN_ERROR;
         return new ApiError({
             code,
-            statusCode:config.statusCode,
+            statusCode: statusCode ?? config.statusCode,
             message:message || config.defaultMessage,
             metadata,
     })}
@@ -35,7 +36,7 @@ export class ErrorFactory{
       metadata?:Record<string,unknown>,
     ):ApiError{
       const code = statusCodeMap[statusCode] ?? "UNKNOWN_ERROR";
-      return this.create(code, message, metadata);
+      return this.create(code, message, metadata, statusCode);
     }
 
     static fromAxiosError(
