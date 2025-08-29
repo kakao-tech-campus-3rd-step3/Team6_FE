@@ -7,16 +7,15 @@ export const api = axios.create({
   baseURL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
-
 
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-   throw ErrorFactory.fromAxiosError(error); 
-  }
-)
+    throw ErrorFactory.fromAxiosError(error);
+  },
+);

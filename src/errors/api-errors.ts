@@ -1,19 +1,19 @@
 import type { ErrorCode, ErrorConfig } from "@/errors/types";
 
-export class ApiError extends Error{
-  public readonly code:ErrorCode;
-  public readonly statusCode:number | undefined;
-  public readonly metadata?:Record<string,unknown>;
+export class ApiError extends Error {
+  public readonly code: ErrorCode;
+  public readonly statusCode: number | undefined;
+  public readonly metadata?: Record<string, unknown>;
 
-  constructor(config:ErrorConfig) {
+  constructor(config: ErrorConfig) {
     super(config.message);
-    this.name="ApiError";
-    this.code = config.code as ErrorCode;
-    this.statusCode=  config.statusCode;
+    this.name = "ApiError";
+    this.code = config.code;
+    this.statusCode = config.statusCode;
     this.metadata = config.metadata;
 
-    if(Error.captureStackTrace){
-      Error.captureStackTrace(this,this.constructor);
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, this.constructor);
     }
   }
 }
