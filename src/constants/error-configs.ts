@@ -1,4 +1,4 @@
-import type { ErrorCode } from "@/errors/types";
+import type { ErrorCode, ErrorConfigEntry } from "@/errors/types";
 
 export const ERROR_CONFIGS = {
   BAD_REQUEST: {
@@ -49,4 +49,4 @@ export const ERROR_CONFIGS = {
     statusCode: undefined,
     defaultMessage: "알 수 없는 오류입니다.",
   },
-} as const satisfies Record<ErrorCode, { statusCode?: number; defaultMessage: string }>;
+} as const satisfies Record<ErrorCode, ErrorConfigEntry>;

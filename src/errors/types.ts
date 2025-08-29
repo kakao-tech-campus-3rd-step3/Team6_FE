@@ -5,6 +5,11 @@ export interface ErrorConfig {
   metadata?: Record<string, unknown>;
 }
 
+export interface ErrorConfigEntry {
+  statusCode?: number;
+  defaultMessage: string;
+}
+
 export type ErrorCode =
   | "BAD_REQUEST"
   | "UNAUTHORIZED"
