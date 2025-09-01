@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --background-image-gradient-primary: linear-gradient(135deg, #eff6ff 0%, #faf5ff 100%);
+  --color-primary: #687eff;
+
+  --color-half: #141e5b;
+  --color-secondary: #687eff33;
+}
+
+input:focus {
+  outline: none;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px oklch(1 0 0) inset !important;
+  -webkit-text-fill-color: oklch(0.145 0 0) !important;
+}
+input:-moz-autofill {
+  background-color: transparent !important;
+}
