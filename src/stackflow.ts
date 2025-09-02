@@ -1,17 +1,18 @@
-import { LandingPage, ProfilePage } from "@/pages";
-import { CreateRoomPage } from "@/pages/CreateRoomPage";
+import LandingPage from "@/pages/LandingPage";
+import ProfilePage from "@/pages/ProfilePage";
+import { config } from "@/stackflow.config";
 import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
-import { stackflow } from "@stackflow/react";
+import { lazy, stackflow } from "@stackflow/react/future";
 
-export const { Stack, useFlow } = stackflow({
-  transitionDuration: 300,
-  activities: {
+export const { Stack } = stackflow({
+  config,
+  components: {
     LandingPage,
     ProfilePage,
-    CreateRoomPage,
+    CreateRoomPage: lazy(() => import("./pages/CreateRoomPage")),
   },
-  initialActivity: () => "LandingPage",
+
   plugins: [
     basicRendererPlugin(),
     basicUIPlugin({
