@@ -8,13 +8,11 @@
   --color-secondary: #687eff33;
 }
 
-textarea:focus {
+textarea:focus-visible,
+input:focus-visible {
   outline: none;
 }
 
-input:focus {
-  outline: none;
-}
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
