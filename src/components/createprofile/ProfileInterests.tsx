@@ -13,7 +13,7 @@ export const ProfileInterests = () => {
           {INTERESTS.map((interest) => (
             <Button
               key={interest}
-              variant={isSelected(interest) ? "primary" : "outline"}
+              variant={isSelected(interest) ? "primary" : "ghost"}
               onClick={() => toggleSelection(interest)}
               className="h-10 text-base"
               aria-pressed={isSelected(interest)}
