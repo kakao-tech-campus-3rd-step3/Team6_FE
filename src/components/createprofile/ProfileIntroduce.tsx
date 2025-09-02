@@ -1,7 +1,7 @@
 import { useRef } from "react";
 
 const MAX_LENGTH = 100;
-
+const MAX_ROW = 3;
 export const ProfileIntroduce = () => {
   const counterRef = useRef<HTMLDivElement>(null);
 
@@ -22,7 +22,8 @@ export const ProfileIntroduce = () => {
           onChange={handleChange}
           maxLength={MAX_LENGTH}
           aria-describedby="character-count"
-          rows={3}
+          aria-labelledby="profile-introduce-label"
+          rows={MAX_ROW}
         />
         <div id="character-count" ref={counterRef} className="mt-1 text-right text-sm text-gray-500" aria-live="polite">
           0/{MAX_LENGTH}
