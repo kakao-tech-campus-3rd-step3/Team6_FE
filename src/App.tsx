@@ -1,5 +1,10 @@
-const App = () => {
-  return <div className="bg-black">App</div>;
-};
+import { Layout } from "@/layouts";
+import { Stack } from "@/stackflow";
 
-export default App;
+export const App = () => {
+  return (
+    <Layout>
+      <Stack />
+    </Layout>
+  );
+};
