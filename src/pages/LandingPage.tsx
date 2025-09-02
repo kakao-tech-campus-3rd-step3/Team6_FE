@@ -12,7 +12,7 @@ const LandingPage: ActivityComponentType = () => {
   };
 
   const handleProfileSetup = () => {
-    push("ProfilePage", { title: "프로필" });
+    push("ProfilePage", { title: "프로필 설정" });
   };
 
   const handleQRJoin = () => {
