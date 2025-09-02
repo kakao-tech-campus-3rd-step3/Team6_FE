@@ -18,7 +18,7 @@ export const ProfileMbti = () => {
   return (
     <section className="space-y-4">
       <fieldset>
-        <legend className="text-lg font-semibold">MBTI</legend>
+        <legend className="pb-2 text-lg font-semibold">MBTI</legend>
         <div className="grid grid-cols-4 gap-2">
           {mbtiPairs.map((pair) => (
             <div key={pair.dimension} role="radiogroup" aria-label={`${pair.dimension} 선택`} className="contents">

@@ -16,7 +16,7 @@ export const PurposeSelection = () => {
   return (
     <section className="space-y-4">
       <fieldset>
-        <legend className="text-lg font-semibold text-black">목적</legend>
+        <legend className="pb-2 text-lg font-semibold text-black">목적</legend>
         <div className="space-y-3" role="radiogroup" aria-label="방 목적 선택">
           {purposes.map((purpose) => (
             <OptionCard
