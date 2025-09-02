@@ -1,6 +1,7 @@
 import { cn } from "@/utils/cn";
+import type { ButtonHTMLAttributes } from "react";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline";
 }
 
@@ -10,9 +11,10 @@ const buttonVariants = {
   outline: "border-primary text-primary border-2 bg-transparent",
 } as const;
 
-const Button = ({ className, variant = "primary", ...props }: ButtonProps) => {
+const Button = ({ className, variant = "primary", type = "button", ...props }: ButtonProps) => {
   return (
     <button
+      type={type}
       className={cn("h-15 w-full rounded-lg text-xl transition-colors", buttonVariants[variant], className)}
       {...props}
     />
