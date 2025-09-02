@@ -8,6 +8,10 @@
   --color-secondary: #687eff33;
 }
 
+textarea:focus {
+  outline: none;
+}
+
 input:focus {
   outline: none;
 }
