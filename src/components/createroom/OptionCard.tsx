@@ -26,13 +26,6 @@ const textStyles = {
 };
 
 export const OptionCard = ({ title, description, isSelected, onClick }: OptionCardProps) => {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      onClick();
-    }
-  };
-
   return (
     <div
       className={cn(cardStyles.base, isSelected ? cardStyles.selected : cardStyles.unselected)}
@@ -40,7 +33,6 @@ export const OptionCard = ({ title, description, isSelected, onClick }: OptionCa
       role="radio"
       aria-checked={isSelected}
       tabIndex={0}
-      onKeyDown={handleKeyDown}
     >
       <div className="flex w-1/6 items-center justify-center">
         <div className={cn(checkStyles.base, isSelected ? checkStyles.selected : checkStyles.unselected)}>
