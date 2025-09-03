@@ -38,7 +38,7 @@ export const MenuItem = ({ variant, title, description, onClick }: MenuItemProps
       </div>
 
       <div className="w-5/6 text-left pl-4">
-        <p className="text-lg font-semibold">{title}</p>
+        <p className="text-xl font-semibold">{title}</p>
         <p className="text-gray-500">{description}</p>
       </div>
 
