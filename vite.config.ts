@@ -13,6 +13,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["logo.svg"],
       manifest: {
+        id: "/",
         name: "얼음땡",
         short_name: "Icebreaking",
         description: "아이스브레이킹 얼음땡",
