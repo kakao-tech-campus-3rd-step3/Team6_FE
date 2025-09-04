@@ -5,6 +5,7 @@ import { config } from "@/stackflow.config";
 import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { lazy, stackflow } from "@stackflow/react/future";
+import MenuSelectPage from "./pages/MenuSelectPage";
 
 export const { Stack } = stackflow({
   config,
@@ -12,6 +13,7 @@ export const { Stack } = stackflow({
     LandingPage,
     ProfilePage,
     CreateRoomPage: lazy(() => import("./pages/CreateRoomPage")),
+    MenuSelectPage,
     WaitingRoomPage,
   },
 
