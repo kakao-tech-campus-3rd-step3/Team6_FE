@@ -27,7 +27,7 @@ const profiles: Profile[] = [
     name: "최원아",
     age: 22,
     mbti: "INTP",
-    interests: ["스포츠", "음악", "영화", "독서", "여행", "요리", "게임", "사진", "운동", "카페", "쇼핑", "반려동물"],
+    interests: ["스포츠", "음악", "영화", "독서", "여행", "요리", "게임", "반려동물"],
     intro:
       "새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운",
   },
@@ -65,10 +65,10 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
   return (
     <AppScreen appBar={{ title: "프로필 소개" }}>
-      <main className="bg-gradient-primary p-6">
+      <main className="bg-gradient-primary px-6 py-4">
         <div className="flex flex-col items-center">
           {/* 상단 진행 점 */}
-          <div className="mb-6 flex space-x-2">
+          <div className="mb-4 flex space-x-2">
             {profiles.map((_, index) => (
               <div
                 key={index}
@@ -80,7 +80,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
           </div>
 
           {/* 프로필 카드 */}
-          <div className="h-[500px] w-full max-w-sm rounded-2xl bg-white p-6 shadow-md">
+          <div className="h-[470px] w-full max-w-sm rounded-2xl bg-white p-6 shadow-md">
             {/* 프로필 이미지 */}
             <div className="mb-4 flex justify-center">
               <img src={profileImage} alt="프로필 이미지" className="h-25 w-25 rounded-full object-cover shadow-md" />
@@ -89,7 +89,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
             {/* 기본 정보 */}
             <div className="mb-4 text-center text-2xl font-bold">{currentProfile.name}</div>
 
-            <div className="mb-8 flex justify-center space-x-4 text-black">
+            <div className="mb-4 flex justify-center space-x-4 text-black">
               <div className="flex items-center space-x-1">
                 <span className="text-sm">
                   <Calendar className="h-4 w-4" />
@@ -105,7 +105,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
             </div>
 
             {/* 관심사 */}
-            <div className="mb-8 flex flex-wrap justify-center gap-2">
+            <div className="mb-6 flex flex-wrap justify-center gap-2">
               {currentProfile.interests.map((interest) => (
                 <span key={interest} className="bg-primary rounded-full px-3 py-1 text-sm text-white">
                   #{interest}
@@ -130,7 +130,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
             </div>
 
             {/* 진행바 */}
-            <div className="bg-opacity-30 mb-4 h-2 w-full rounded-full bg-gray-300">
+            <div className="bg-opacity-30 mb-2 h-2 w-full rounded-full bg-gray-300">
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-1000 ease-linear"
                 style={{ width: `${progressPercentage}%` }}
@@ -140,7 +140,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
           {/* 다음사람 */}
           <div className="text-center">
-            <span className="text-sm text-white">
+            <span className="text-sm text-gray-500">
               다음: {profiles[(currentProfileIndex + 1) % profiles.length].name}
             </span>
           </div>
