@@ -1,6 +1,7 @@
 import profileImage from "@/assets/profileimg.png";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
+import { useFlow } from "@stackflow/react/future";
 import { Calendar, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -45,12 +46,20 @@ const profiles: Profile[] = [
 const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(10);
+  const { push } = useFlow();
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          setCurrentProfileIndex((prevIndex) => (prevIndex + 1) % profiles.length);
+          const nextIndex = (currentProfileIndex + 1) % profiles.length;
+
+          if (nextIndex === 0) {
+            push("ProfileCheckPage", { title: "프로필 확인" });
+            return 10;
+          }
+
+          setCurrentProfileIndex(nextIndex);
           return 10;
         }
         return prev - 1;
@@ -58,17 +67,17 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentProfileIndex, push]);
 
   const currentProfile = profiles[currentProfileIndex];
   const progressPercentage = ((10 - timeLeft) / 10) * 100;
 
   return (
     <AppScreen appBar={{ title: "프로필 소개" }}>
-      <main className="bg-gradient-primary px-6 py-4">
+      <main className="bg-gradient-primary p-6">
         <div className="flex flex-col items-center">
           {/* 상단 진행 점 */}
-          <div className="mb-4 flex space-x-2">
+          <div className="mb-6 flex space-x-2">
             {profiles.map((_, index) => (
               <div
                 key={index}
@@ -130,7 +139,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
             </div>
 
             {/* 진행바 */}
-            <div className="bg-opacity-30 mb-2 h-2 w-full rounded-full bg-gray-300">
+            <div className="bg-opacity-30 mb-2 h-2 w-full rounded-full bg-gray-200">
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-1000 ease-linear"
                 style={{ width: `${progressPercentage}%` }}
@@ -139,11 +148,11 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
           </div>
 
           {/* 다음사람 */}
-          <div className="text-center">
-            <span className="text-sm text-gray-500">
-              다음: {profiles[(currentProfileIndex + 1) % profiles.length].name}
-            </span>
-          </div>
+          {currentProfileIndex < profiles.length - 1 && (
+            <div className="text-center">
+              <span className="text-sm text-gray-500">다음: {profiles[currentProfileIndex + 1].name}</span>
+            </div>
+          )}
         </div>
       </main>
     </AppScreen>

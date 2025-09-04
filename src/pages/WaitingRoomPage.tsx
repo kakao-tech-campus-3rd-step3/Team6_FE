@@ -19,7 +19,7 @@ const WaitingRoomPage: ActivityComponentType<"WaitingRoomPage"> = () => {
         <WaitingRoomQRCode />
         <WaitingRoomParticipants />
 
-        <Button onClick={handleStartGame} className="h-12 w-full max-w-sm font-semibold">
+        <Button onClick={handleStartGame} className="w-full max-w-sm font-semibold">
           시작하기
         </Button>
       </main>
