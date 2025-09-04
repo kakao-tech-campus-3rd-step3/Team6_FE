@@ -19,7 +19,7 @@ interface MenuItemProps {
 }
 
 const cardStyles = { 
-  base: "flex h-25 w-full cursor-pointer items-center rounded-2xl shadow-lg bg-white", 
+  base: "flex h-24 w-full cursor-pointer items-center rounded-2xl shadow-lg bg-white", 
 };
 
 const checkStyles = { 
