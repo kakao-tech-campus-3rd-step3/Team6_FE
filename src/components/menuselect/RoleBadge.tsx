@@ -1,10 +1,12 @@
 import { cn } from "@/utils/cn";
 
+type Role = "방장" | "구성원";
 interface RoleProps {
-  role: string;
+  role: Role;
 }
+
 const cardStyles = { 
-  base: "flex h-18 w-full cursor-pointer items-center rounded-2xl shadow-lg bg-[#687EFF]/15", 
+  base: "flex h-[72px] w-full items-center rounded-2xl shadow-lg bg-[#687EFF]/15", 
 };
 
 const checkStyles = { 
