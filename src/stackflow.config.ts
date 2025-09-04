@@ -12,6 +12,9 @@ export const config = defineConfig({
     {
       name: "CreateRoomPage",
     },
+    {
+      name: "WaitingRoomPage",
+    },
   ],
   initialActivity: () => "LandingPage",
 });
