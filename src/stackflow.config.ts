@@ -14,6 +14,9 @@ export const config = defineConfig({
     },
     { 
       name: "MenuSelectPage",
+    }
+    {
+      name: "WaitingRoomPage",
     },
   ],
   initialActivity: () => "LandingPage",
