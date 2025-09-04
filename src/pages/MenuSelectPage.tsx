@@ -1,4 +1,4 @@
-import { IntroSection, MenuList, RoleBadge, MenuWaiting} from "@/components/menuselect";
+import { IntroSection, MenuList, RoleBadge, MenuWaiting } from "@/components/menuselect";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react";
 import type { Role } from "@/components/menuselect/RoleBadge";
