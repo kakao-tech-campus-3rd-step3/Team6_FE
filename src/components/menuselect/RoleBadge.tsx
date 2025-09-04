@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
 
-type Role = "방장" | "구성원";
+export type Role = "방장" | "구성원";
 interface RoleProps {
   role: Role;
 }
