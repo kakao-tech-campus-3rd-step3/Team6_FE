@@ -1,5 +1,6 @@
 import LandingPage from "@/pages/LandingPage";
 import ProfilePage from "@/pages/ProfilePage";
+import ProfileViewPage from "@/pages/ProfileViewPage";
 import WaitingRoomPage from "@/pages/WaitingRoomPage";
 import { config } from "@/stackflow.config";
 import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
@@ -11,6 +12,7 @@ export const { Stack } = stackflow({
   components: {
     LandingPage,
     ProfilePage,
+    ProfileViewPage,
     CreateRoomPage: lazy(() => import("./pages/CreateRoomPage")),
     WaitingRoomPage,
   },
