@@ -1,5 +1,4 @@
 import { NextProfile, PageDots, ProfileCard, ProgressBar } from "@/components/profileview";
-import type { Profile } from "@/components/profileview/types";
 import { profiles } from "@/data/profiles";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";

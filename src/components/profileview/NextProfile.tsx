@@ -4,7 +4,7 @@ interface NextProfileProps {
   nextProfileName: string;
 }
 
-export const NextProfile = ({ currentIndex, totalCount, nextProfileName }: NextProfileIndicatorProps) => {
+export const NextProfile = ({ currentIndex, totalCount, nextProfileName }: NextProfileProps) => {
   return (
     <div className="text-center">
       <span className="text-sm text-gray-500">
