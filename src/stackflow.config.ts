@@ -10,6 +10,12 @@ export const config = defineConfig({
       name: "ProfilePage",
     },
     {
+      name: "ProfileCheckPage",
+    },
+    {
+      name: "ProfileViewPage",
+    },
+    {
       name: "CreateRoomPage",
     },
     { 
