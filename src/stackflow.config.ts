@@ -12,11 +12,14 @@ export const config = defineConfig({
     {
       name: "CreateRoomPage",
     },
-    { 
+    {
       name: "MenuSelectPage",
     },
     {
       name: "WaitingRoomPage",
+    },
+    {
+      name: "RandomRoulettePage",
     },
   ],
   initialActivity: () => "LandingPage",
