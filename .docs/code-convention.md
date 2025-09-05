@@ -110,7 +110,7 @@ export interface GetProfileByIdResponseBody {
 
 ```ts
 export const getProfileById = async (id: number) => {
-  const { data: response } = await api.get<BaseResponse<GetProfileByProfileIdResponseBody>>(`/profile/${id}`);
+  const { data: response } = await api.get<BaseResponse<GetProfileByIdResponseBody>>(`/profile/${id}`);
   return response.data;
 };
 ```
@@ -126,7 +126,7 @@ export const getProfileById = async (id: number) => {
 
 ```ts
 export const UserQueryKeys = {
-  GET_USERNAME: () => ["USER", "GET_USERNAME", id],
+  GET_USERNAME: () => ["USER", "GET_USERNAME"],
   GET_PROFILE_BY_ID: (id: number) => ["USER", "GET_PROFILE_BY_ID", id],
 } as const;
 ```
