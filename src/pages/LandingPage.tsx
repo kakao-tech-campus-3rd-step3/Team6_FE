@@ -19,7 +19,9 @@ const LandingPage: ActivityComponentType = () => {
     // TODO: QR 참여 기능 구현
     console.log("QR로 참여하기 - 미구현");
   };
-
+  const handleRoulette = () => {
+    push("RandomRoulettePage", { title: "룰렛" });
+  };
   return (
     <AppScreen>
       <main className="bg-gradient-primary flex flex-col items-center px-4 pt-20 pb-8">
@@ -34,6 +36,7 @@ const LandingPage: ActivityComponentType = () => {
         <nav className="space-y-2">
           <Button onClick={handleCreateRoom}>방 만들기</Button>
           <Button onClick={handleProfileSetup}>프로필 설정</Button>
+          <Button onClick={handleRoulette}>룰렛</Button>
           <Button variant="outline" onClick={handleQRJoin} disabled>
             QR로 참여하기
           </Button>
