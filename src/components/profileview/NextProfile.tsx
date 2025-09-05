@@ -8,7 +8,7 @@ export const NextProfile = ({ currentIndex, totalCount, nextProfileName }: NextP
   return (
     <div className="text-center">
       <span className="text-sm text-gray-500">
-        {currentIndex >= totalCount - 1 ? "마지막" : `다음 : ${nextProfileName}`}
+        {currentIndex >= totalCount - 1 ? "마지막 프로필입니다." : `다음 : ${nextProfileName}`}
       </span>
     </div>
   );
