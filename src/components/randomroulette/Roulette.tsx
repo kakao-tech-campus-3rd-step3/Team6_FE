@@ -49,7 +49,7 @@ export const Roulette = ({
 
             return (
               <div
-                key={participant}
+                key={`${participant}-${index}`}
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
                 style={{
                   transform: `rotate(${rotation}deg)`,
