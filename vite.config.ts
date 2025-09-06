@@ -4,6 +4,11 @@ import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const SECONDS_IN_MINUTE = 60;
+const MINUTES_IN_HOUR = 60;
+const HOURS_IN_DAY = 24;
+const MAX_CACHE_ENTRIES = 50;
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -57,8 +62,8 @@ export default defineConfig({
             options: {
               cacheName: "api-cache",
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24,
+                maxEntries: MAX_CACHE_ENTRIES,
+                maxAgeSeconds: SECONDS_IN_MINUTE * MINUTES_IN_HOUR * HOURS_IN_DAY,
               },
             },
           },

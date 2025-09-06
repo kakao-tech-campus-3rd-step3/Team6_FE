@@ -1,6 +1,8 @@
 import { ParticipantItem, ProgressBar } from "@/components/waitingroom";
 import type { WaitingRoomParticipantsProps } from "@/components/waitingroom/types";
 
+const DEFAULT_MAX_PARTICIPANTS = 4;
+
 export const WaitingRoomParticipants = ({
   participants = [
     { id: "1", name: "참가자 1", isJoined: true },
@@ -8,7 +10,7 @@ export const WaitingRoomParticipants = ({
     { id: "3", name: "참가자 3", isJoined: false },
     { id: "4", name: "참가자 4", isJoined: false },
   ],
-  maxParticipants = 4,
+  maxParticipants = DEFAULT_MAX_PARTICIPANTS,
 }: WaitingRoomParticipantsProps) => {
   const joinedCount = participants.filter((p) => p.isJoined).length;
 

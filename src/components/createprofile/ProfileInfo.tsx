@@ -1,7 +1,12 @@
 import { InputWithLabel } from "@/components/common";
+import { range } from "@/utils";
+
+const AVAILABLE_START_AGE = 15;
+const AVAILABLE_END_AGE = 55;
+const MAX_PHONE_LENGTH = 13;
 
 export const ProfileInfo = () => {
-  const ageOptions = Array.from({ length: 41 }, (_, i) => i + 15);
+  const ageOptions = range(AVAILABLE_START_AGE, AVAILABLE_END_AGE);
 
   return (
     <section className="space-y-4">
@@ -9,7 +14,7 @@ export const ProfileInfo = () => {
       <InputWithLabel
         label="전화번호"
         type="tel"
-        maxLength={13}
+        maxLength={MAX_PHONE_LENGTH}
         id="profile-phone"
         placeholder="전화번호를 입력해주세요."
       />
