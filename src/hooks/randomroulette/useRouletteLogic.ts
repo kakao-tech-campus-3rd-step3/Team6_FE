@@ -1,6 +1,10 @@
 import { COLORS, COLOR_MAP } from "@/constants";
 import { type RefObject, useRef, useState } from "react";
 
+const FULL_CIRCLE_DEGREES = 360;
+const SECTION_CENTER_DIVISOR = 2;
+const FIXED_ROTATIONS = 10;
+
 interface UseRouletteLogicProps {
   participants: string[];
   onResult?: (winner: string) => void;
@@ -23,18 +27,17 @@ export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicPro
     return participants
       .map((_, index) => {
         const color = COLORS[index % COLORS.length];
-        const start = (360 / participants.length) * index;
-        const end = (360 / participants.length) * (index + 1);
+        const start = (FULL_CIRCLE_DEGREES / participants.length) * index;
+        const end = (FULL_CIRCLE_DEGREES / participants.length) * (index + 1);
         return `${COLOR_MAP[color as keyof typeof COLOR_MAP]} ${start}deg ${end}deg`;
       })
       .join(", ");
   };
 
   const calculateSpinRotation = (winnerIndex: number) => {
-    const fixedRotations = 10;
-    const sectionAngle = 360 / participants.length;
-    const targetAngle = sectionAngle * winnerIndex + sectionAngle / 2;
-    return fixedRotations * 360 + targetAngle;
+    const sectionAngle = FULL_CIRCLE_DEGREES / participants.length;
+    const targetAngle = sectionAngle * winnerIndex + sectionAngle / SECTION_CENTER_DIVISOR;
+    return FIXED_ROTATIONS * FULL_CIRCLE_DEGREES + targetAngle;
   };
 
   const animateWheel = (rotation: number) => {

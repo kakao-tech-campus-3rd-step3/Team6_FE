@@ -1,9 +1,11 @@
 import type { ProgressBarProps } from "@/components/waitingroom/types";
 
+const PERCENTAGE_MULTIPLIER = 100;
+
 export const ProgressBar = ({ current, max }: ProgressBarProps) => {
   const safeMax = Math.max(1, max || 1);
   const safeCurrent = Math.max(1, Math.min(current || 1, safeMax));
-  const percentage = (safeCurrent / safeMax) * 100;
+  const percentage = (safeCurrent / safeMax) * PERCENTAGE_MULTIPLIER;
 
   return (
     <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200">
