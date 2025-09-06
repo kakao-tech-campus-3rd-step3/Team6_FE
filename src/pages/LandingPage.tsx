@@ -37,7 +37,7 @@ const LandingPage: ActivityComponentType = () => {
           <Button onClick={handleCreateRoom}>방 만들기</Button>
           <Button onClick={handleProfileSetup}>프로필 설정</Button>
           <Button onClick={handleRoulette}>룰렛</Button>
-          <Button variant="outline" onClick={handleQRJoin} disabled>
+          <Button variant="border" onClick={handleQRJoin} disabled>
             QR로 참여하기
           </Button>
         </nav>

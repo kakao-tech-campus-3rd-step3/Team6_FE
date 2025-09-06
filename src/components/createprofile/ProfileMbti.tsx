@@ -25,7 +25,7 @@ export const ProfileMbti = () => {
               {pair.options.map((option, rowIndex) => (
                 <Button
                   key={`${pair.dimension}-${option}`}
-                  variant={selections[pair.dimension] === option ? "primary" : "secondary"}
+                  variant={selections[pair.dimension] === option ? "main" : "sub"}
                   onClick={() => handleSelection(option, pair.dimension)}
                   className={`${rowIndex === 1 ? "row-start-2" : ""} h-10`}
                   role="radio"
