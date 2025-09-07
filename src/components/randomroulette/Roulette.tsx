@@ -5,6 +5,8 @@ import { useOverlay } from "@/hooks/useOverlay";
 import { RotateCwIcon } from "lucide-react";
 import { useEffect } from "react";
 
+const FULL_CIRCLE_DEGREES = 360;
+const SECTION_CENTER_DIVISOR = 2;
 interface RouletteProps {
   participants?: string[];
   onResult?: (winner: string) => void;
@@ -42,12 +44,12 @@ export const Roulette = ({
           }}
         >
           {participants.map((participant, index) => {
-            const sectionAngle = 360 / participants.length;
-            const rotation = sectionAngle * index + sectionAngle / 2;
+            const sectionAngle = FULL_CIRCLE_DEGREES / participants.length;
+            const rotation = sectionAngle * index + sectionAngle / SECTION_CENTER_DIVISOR;
 
             return (
               <div
-                key={participant}
+                key={`${participant}-${index}`}
                 className="pointer-events-none absolute inset-0 flex items-center justify-center"
                 style={{
                   transform: `rotate(${rotation}deg)`,
