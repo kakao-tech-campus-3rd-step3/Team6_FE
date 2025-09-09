@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
 import { QuestionItem } from "./QuestionItem";
 import { TOPIC_QUESTIONS } from "@/constants/topic-quesion";
+import type { InterestType } from "@/constants/interests";
 
 interface QuestionListProps {
-  selectedInterest: string; 
+  selectedInterest: InterestType;
 }
 
 export const QuestionList = ({ selectedInterest }: QuestionListProps) => {
