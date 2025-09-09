@@ -13,7 +13,9 @@ export const ProfileIntroduce = ({ introduction, onIntroductionChange }: Profile
 
   return (
     <section className="space-y-4">
-      <h3 className="text-lg font-semibold">한줄 소개</h3>
+      <h3 id="profile-introduce-label" className="text-lg font-semibold">
+        한줄 소개
+      </h3>
       <div>
         <textarea
           id="profile-introduce"
