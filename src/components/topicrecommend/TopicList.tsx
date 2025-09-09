@@ -1,19 +1,22 @@
 import { INTERESTS } from "@/constants";
 import clsx from "clsx";
-import { useState } from "react";
 
-export const TopicList = () => {
-  const [selected, setSelected] = useState<string>(INTERESTS[0]);
+interface TopicListProps {
+  selected: string;
+  onSelect: (v: string) => void;
+}
+
+export const TopicList = ({ selected, onSelect }: TopicListProps) => {
   return (
-    <section className="space-y-4 overflow-x-hidden min-w-0">
+    <section className="min-w-0 space-y-4 overflow-x-hidden">
       <fieldset className="min-w-0">
-        <legend className="pb-2 text-lg font-semibold"></legend>
+        <legend className="pb-2 text-lg font-semibold" />
         <div
           className={clsx(
-            "w-full",
+            "w-full max-w-full min-w-0",
             "overflow-x-auto overflow-y-hidden",
-            "overscroll-x-contain touch-pan-x",
-            "scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+            "touch-pan-x overscroll-x-contain",
+            "scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100",
           )}
         >
           <div className="inline-flex min-w-max items-center gap-2 px-4">
@@ -22,13 +25,13 @@ export const TopicList = () => {
               return (
                 <button
                   key={interest}
-                  onClick={() => setSelected(interest)}
+                  onClick={() => onSelect(interest)}
                   aria-pressed={on}
                   className={clsx(
                     "shrink-0",
-                    "h-8 px-3 rounded-full text-base",
-                    "whitespace-nowrap cursor-pointer text-white",
-                    on ? "bg-primary" : "bg-[#687EFF]/50"
+                    "h-8 rounded-full px-3 text-base",
+                    "cursor-pointer whitespace-nowrap text-white",
+                    on ? "bg-primary" : "bg-[#687EFF]/50",
                   )}
                 >
                   {interest}
