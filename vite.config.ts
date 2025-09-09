@@ -4,9 +4,8 @@ import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const SECONDS_IN_MINUTE = 60;
-const MINUTES_IN_HOUR = 60;
-const HOURS_IN_DAY = 24;
+import { HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "./src/constants";
+
 const MAX_CACHE_ENTRIES = 50;
 
 // https://vite.dev/config/
