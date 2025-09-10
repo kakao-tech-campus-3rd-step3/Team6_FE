@@ -1,3 +1,4 @@
+import { Button } from "@/components/common";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
 import { Check } from "lucide-react";
@@ -5,7 +6,7 @@ import { Check } from "lucide-react";
 const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
   return (
     <AppScreen appBar={{ title: "프로필 소개" }}>
-      <main className="bg-gradient-primary p-4">
+      <main className="bg-gradient-primary min-h-screen p-4">
         <div className="flex flex-col items-center">
           {/* 완료 아이콘과 메시지 */}
           <div className="mt-0 flex flex-col items-center space-y-4">
@@ -19,9 +20,9 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
           </div>
 
           {/* 준비 상태 카드 */}
-          <div className="mt-6 h-[350px] w-full rounded-[16px] bg-white p-4 shadow-md">
+          <div className="mt-6 h-[340px] w-full rounded-[16px] bg-white p-4 shadow-md">
             <h3 className="text-md mb-4 flex justify-center font-bold text-black">준비 상태</h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="text-md flex h-14 items-center justify-between rounded-[8px] bg-[#F9FAFB] px-6 text-gray-800">
                 김민수
                 <span className="text-md rounded-full bg-[#DCFCE7] px-4 py-1 text-[#15803D]">준비 완료</span>
@@ -40,6 +41,9 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
               </div>
             </div>
           </div>
+
+          {/* 준비 완료 버튼 */}
+          <Button className="mt-4 w-full text-[18px] font-semibold">준비 완료</Button>
         </div>
       </main>
     </AppScreen>
