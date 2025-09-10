@@ -27,6 +27,9 @@ export const config = defineConfig({
     {
       name: "RandomRoulettePage",
     },
+    {
+      name: "EndingPage",
+    },
   ],
   initialActivity: () => "LandingPage",
 });

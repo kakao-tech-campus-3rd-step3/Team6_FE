@@ -10,6 +10,7 @@ import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { lazy, stackflow } from "@stackflow/react/future";
 
 import MenuSelectPage from "./pages/MenuSelectPage";
+import EndingPage from "./pages/EndingPage";
 
 export const { Stack } = stackflow({
   config,
@@ -22,6 +23,7 @@ export const { Stack } = stackflow({
     MenuSelectPage,
     WaitingRoomPage,
     RandomRoulettePage,
+    EndingPage,
   },
 
   plugins: [

@@ -9,7 +9,7 @@ const ACTIVITY_BY_MENU = {
   random: "RandomPage",
   topic: "TopicPage",
   manitto: "ManittoPage",
-  end: "FinishPage",
+  end: "EndingPage",
 } as const satisfies Record<MenuId, string>;
 
 export const MenuList = () => {
