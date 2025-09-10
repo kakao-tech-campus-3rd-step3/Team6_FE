@@ -11,6 +11,7 @@ import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { lazy, stackflow } from "@stackflow/react/future";
 
 import MenuSelectPage from "./pages/MenuSelectPage";
+import EndingPage from "./pages/EndingPage";
 import TopicRecommendPage from "./pages/TopicRecommendPage";
 
 export const { Stack } = stackflow({
@@ -25,6 +26,7 @@ export const { Stack } = stackflow({
     MenuSelectPage,
     WaitingRoomPage,
     RandomRoulettePage,
+    EndingPage,
     TopicRecommendPage,
   },
 

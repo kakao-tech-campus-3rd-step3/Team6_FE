@@ -31,6 +31,9 @@ export const config = defineConfig({
       name: "RandomRoulettePage",
     },
     {
+      name: "EndingPage",
+    },
+    {
       name: "TopicRecommendPage",
     },
   ],
