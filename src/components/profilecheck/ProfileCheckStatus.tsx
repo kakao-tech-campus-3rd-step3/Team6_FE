@@ -9,9 +9,9 @@ interface ProfileCheckStatusProps {
 
 const ProfileCheckStatus = ({ members }: ProfileCheckStatusProps) => {
   return (
-    <div className="mt-6 h-[340px] w-full rounded-[16px] bg-white p-4 shadow-md">
+    <div className="mt-6 flex h-[340px] w-full flex-col rounded-[16px] bg-white p-4 shadow-md">
       <h3 className="text-md mb-4 flex justify-center font-bold text-black">준비 상태</h3>
-      <div className="space-y-2">
+      <div className="flex-1 space-y-2 overflow-y-auto">
         {members.map((member) => (
           <div
             key={member.name}

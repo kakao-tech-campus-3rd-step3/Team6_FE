@@ -11,6 +11,10 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
     { name: "이지은", isReady: true },
     { name: "박준혁", isReady: true },
     { name: "최민지", isReady: true },
+    { name: "이지은", isReady: true },
+    { name: "이지은", isReady: true },
+    { name: "이지은", isReady: true },
+    { name: "이지은", isReady: true },
   ]);
 
   const handleReadyClick = () => {
