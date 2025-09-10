@@ -16,6 +16,9 @@ export const config = defineConfig({
       name: "ProfileViewPage",
     },
     {
+      name: "ManittoPage",
+    },
+    {
       name: "CreateRoomPage",
     },
     {
