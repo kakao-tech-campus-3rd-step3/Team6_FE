@@ -29,13 +29,13 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
       if (nextIndex === 0) {
         push("ProfileCheckPage", { title: "프로필 확인" });
+        return;
       } else {
         setCurrentProfileIndex(nextIndex);
+        setTimeLeft(PROFILE_VIEW_TIME);
       }
-
-      setTimeLeft(PROFILE_VIEW_TIME);
     }
-  }, [timeLeft, currentProfileIndex, push]);
+  }, [timeLeft, currentProfileIndex]);
 
   const currentProfile = profiles[currentProfileIndex];
   const progressPercentage = ((PROFILE_VIEW_TIME - timeLeft) / PROFILE_VIEW_TIME) * PERCENTAGE_MULTIPLIER;

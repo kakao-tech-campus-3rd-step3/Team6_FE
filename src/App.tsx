@@ -1,10 +1,14 @@
 import { Layout } from "@/layouts";
+import { queryClient } from "@/lib/queryClient";
 import { Stack } from "@/stackflow";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 export const App = () => {
   return (
-    <Layout>
-      <Stack />
-    </Layout>
+    <QueryClientProvider client={queryClient}>
+      <Layout>
+        <Stack />
+      </Layout>
+    </QueryClientProvider>
   );
 };

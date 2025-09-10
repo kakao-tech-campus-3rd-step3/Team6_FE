@@ -16,6 +16,9 @@ export const config = defineConfig({
       name: "ProfileViewPage",
     },
     {
+      name: "ManittoPage",
+    },
+    {
       name: "CreateRoomPage",
     },
     {
@@ -29,6 +32,9 @@ export const config = defineConfig({
     },
     {
       name: "EndingPage",
+    },
+    {
+      name: "TopicRecommendPage",
     },
   ],
   initialActivity: () => "LandingPage",
