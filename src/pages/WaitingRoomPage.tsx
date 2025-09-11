@@ -1,16 +1,27 @@
 import { Button } from "@/components/common";
 import { WaitingMessage, WaitingRoomCode, WaitingRoomParticipants, WaitingRoomQRCode } from "@/components/waitingroom";
 import { useWaitingRoomData } from "@/hooks/waitingroom";
+import { useAuthStore } from "@/store/authStore";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
 import { useActivity, useFlow } from "@stackflow/react/future";
+import { useEffect, useRef } from "react";
 
 const WaitingRoomContent = () => {
   const { push } = useFlow();
   const { params } = useActivity();
+  const token = useAuthStore((state) => state.token);
+  const hasRedirectedRef = useRef(false);
 
   const roomId = params?.roomId as string;
   const isHost = params?.isHost === "true";
+
+  useEffect(() => {
+    if (!token && roomId && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      push("ProfilePage", { roomId });
+    }
+  }, [token, roomId, push]);
 
   const { participants, maxParticipants, isConnected, roomSubscribed } = useWaitingRoomData({
     roomId,
@@ -41,7 +52,7 @@ const WaitingRoomContent = () => {
             <span>서버 연결 중...</span>
           </div>
         )}
-        
+
         {isConnected && !roomSubscribed && (
           <div className="flex items-center justify-center space-x-2 text-center text-sm text-white/80">
             <div className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
