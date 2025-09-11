@@ -7,6 +7,11 @@ interface UseWaitingRoomDataProps {
   roomId: string;
   isHost: boolean;
 }
+
+interface ServerParticipant {
+  id: number;
+  name: string;
+}
 const TEMP_MAX_PARTICIPANTS = 4;
 const EMPTY_OPTIONS = {};
 
@@ -46,13 +51,23 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
           return;
         }
 
-        if (roomData.type === "USER_JOINED" && roomData.participant) {
-          console.log("새 참가자 참여:", roomData.participant);
-          const newParticipant = normalizeParticipant(roomData.participant);
-          setParticipants((prev) => {
-            const exists = prev.some((p) => p.userId === newParticipant.userId);
-            return exists ? prev : [...prev, newParticipant];
-          });
+        if (roomData.type === "PARTICIPANT_JOINED" && roomData.newParticipant) {
+          console.log("PARTICIPANT_JOINED - 참가자 목록 업데이트:", roomData.newParticipant);
+          const participantList = roomData.newParticipant.map((p: ServerParticipant) =>
+            normalizeParticipant({
+              userId: String(p.id),
+              name: p.name,
+              isJoined: true,
+            }),
+          );
+
+          const uniqueParticipants = participantList.filter(
+            (participant: Participant, index: number, array: Participant[]) =>
+              array.findIndex((p: Participant) => p.userId === participant.userId) === index,
+          );
+
+          console.log("중복 제거 후 참가자 목록:", uniqueParticipants);
+          setParticipants(uniqueParticipants);
           return;
         }
 
@@ -79,13 +94,6 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
   );
 
   useStompSubscription("/user/queue/errors", handleErrorMessage, EMPTY_OPTIONS);
-
-  useEffect(() => {
-    if (roomSubscribed && isHost) {
-      console.log(`[방장] 방(${roomId}) 구독 성공. 현재 방 정보 요청 중`);
-      publish(`/app/waiting-room/${roomId}/info`, {});
-    }
-  }, [roomSubscribed, isHost, roomId, publish]);
 
   useEffect(() => {
     if (roomId && !isHost && isConnected) {
