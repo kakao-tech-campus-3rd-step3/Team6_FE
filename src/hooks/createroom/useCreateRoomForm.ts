@@ -1,11 +1,6 @@
 import { useSingleSelection } from "@/hooks";
+import type { CreateRoomFormData } from "@/hooks/createroom";
 import { useMemo, useState } from "react";
-
-export interface CreateRoomFormData {
-  roomName: string;
-  capacity: number;
-  purpose: "business" | "personal" | "drinking" | "";
-}
 
 const initialFormData: CreateRoomFormData = {
   roomName: "",
