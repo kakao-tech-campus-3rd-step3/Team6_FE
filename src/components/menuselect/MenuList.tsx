@@ -6,7 +6,7 @@ import { MenuItem } from "./MenuItem";
 type MenuId = (typeof menu)[number]["id"];
 
 const ACTIVITY_BY_MENU = {
-  random: "RandomPage",
+  random: "RandomRoulettePage",
   topic: "TopicPage",
   manitto: "ManittoPage",
   end: "EndingPage",
