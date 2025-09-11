@@ -1,4 +1,4 @@
-import type { ProgressBarProps } from "@/components/waitingroom/types";
+import type { ProgressBarProps } from "@/components/waitingroom";
 
 const PERCENTAGE_MULTIPLIER = 100;
 
