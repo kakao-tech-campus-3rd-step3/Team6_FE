@@ -1,4 +1,5 @@
 import { InputWithLabel } from "@/components/common";
+import { MAX_PARTICIPANT, MIN_PARTICIPANT } from "@/constants";
 
 interface RoomInfoSectionProps {
   roomName: string;
@@ -21,11 +22,11 @@ export const RoomInfoSection = ({ roomName, capacity, onRoomNameChange, onCapaci
         label="참여 인원"
         placeholder="참여 인원을 입력해주세요"
         type="number"
-        min={2}
-        max={99}
+        min={MIN_PARTICIPANT}
+        max={MAX_PARTICIPANT}
         id="room-capacity"
         value={capacity.toString()}
-        onChange={(e) => onCapacityChange(parseInt(e.target.value))}
+        onChange={(e) => onCapacityChange(Number(e.target.value))}
       />
     </section>
   );

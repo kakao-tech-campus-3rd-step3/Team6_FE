@@ -5,3 +5,6 @@ export const ROOM_PURPOSE = [
 ] as const;
 
 export type PurposeId = (typeof ROOM_PURPOSE)[number]["id"];
+
+export const MIN_PARTICIPANT = 2;
+export const MAX_PARTICIPANT = 20;

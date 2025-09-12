@@ -1,3 +1,4 @@
+import { MAX_PARTICIPANT, MIN_PARTICIPANT } from "@/constants";
 import { useSingleSelection } from "@/hooks";
 import type { CreateRoomFormData } from "@/hooks/createroom";
 import { useMemo, useState } from "react";
@@ -7,9 +8,6 @@ const initialFormData: CreateRoomFormData = {
   capacity: 2,
   purpose: "",
 };
-
-const MIN_PARTICIPANT = 2;
-const MAX_PARTICIPANT = 20;
 
 export const useCreateRoomForm = () => {
   const [formData, setFormData] = useState<CreateRoomFormData>(initialFormData);
