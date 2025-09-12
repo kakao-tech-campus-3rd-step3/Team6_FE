@@ -36,7 +36,7 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
         const data = JSON.parse(message.body);
         const roomData = data.data || data;
         console.log(roomData);
-        if (roomData.participants && roomData.capacity) {
+        if (Array.isArray(roomData.participants) && typeof roomData.capacity === "number") {
           console.log("전체 방 정보 업데이트:", roomData);
           const normalizedParticipants = roomData.participants.map(normalizeParticipant);
           setParticipants(normalizedParticipants);
@@ -52,8 +52,8 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
         }
 
         if (roomData.type === "PARTICIPANT_JOINED" && roomData.newParticipant) {
-          console.log("PARTICIPANT_JOINED - 참가자 목록 업데이트:", roomData.newParticipant);
-          const participantList = roomData.newParticipant.map((p: ServerParticipant) =>
+          console.log("PARTICIPANT_JOINED - 새 참가자 추가:", roomData.newParticipant);
+          const newParticipants = roomData.newParticipant.map((p: ServerParticipant) =>
             normalizeParticipant({
               userId: String(p.id),
               name: p.name,
@@ -61,13 +61,13 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
             }),
           );
 
-          const uniqueParticipants = participantList.filter(
-            (participant: Participant, index: number, array: Participant[]) =>
-              array.findIndex((p: Participant) => p.userId === participant.userId) === index,
-          );
-
-          console.log("중복 제거 후 참가자 목록:", uniqueParticipants);
-          setParticipants(uniqueParticipants);
+          setParticipants((prev) => {
+            const merged = [...prev, ...newParticipants];
+            const uniqueParticipants = merged.filter(
+              (participant, index) => merged.findIndex((p) => p.userId === participant.userId) === index,
+            );
+            return uniqueParticipants;
+          });
           return;
         }
 
