@@ -1,15 +1,16 @@
-import { useState } from "react";
-
-export const useMultiSelection = <T extends string>(initialSelection: T[] = []) => {
-  const [selections, setSelections] = useState<T[]>(initialSelection);
-
+export const useMultiSelection = <T extends string>(selections: T[], onSelectionChange: (selections: T[]) => void) => {
   const toggleSelection = (item: T) => {
-    setSelections((prev) => (prev.includes(item) ? prev.filter((selected) => selected !== item) : [...prev, item]));
+    const isSelected = selections.includes(item);
+    if (isSelected) {
+      onSelectionChange(selections.filter((selected) => selected !== item));
+    } else {
+      onSelectionChange([...selections, item]);
+    }
   };
 
   const isSelected = (item: T) => selections.includes(item);
 
-  const clearSelections = () => setSelections([]);
+  const clearSelections = () => onSelectionChange([]);
 
   return {
     selections,

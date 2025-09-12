@@ -3,6 +3,8 @@ import { ApiError } from "@/errors/api-errors";
 import type { ErrorCode } from "@/errors/types";
 import type { AxiosError } from "axios";
 
+const HTTP_UNAUTHORIZED = 401;
+
 const statusCodeMap: Record<number, ErrorCode> = {
         400: "BAD_REQUEST",
         401: "UNAUTHORIZED", 
@@ -50,7 +52,7 @@ export class ErrorFactory{
       
       const metadata = data?.metadata;
 
-      if(status===401 && data?.code ==="TOKEN_EXPIRED"){
+      if(status===HTTP_UNAUTHORIZED && data?.code ==="TOKEN_EXPIRED"){
         return this.create("TOKEN_EXPIRED",message,metadata);
       }
       return this.fromStatusCode(status,message,metadata);

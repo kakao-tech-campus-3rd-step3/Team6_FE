@@ -1,12 +1,12 @@
 export interface Participant {
-  id: string;
+  userId: string;
   name: string;
   isJoined: boolean;
 }
 
 export interface WaitingRoomParticipantsProps {
-  participants?: Participant[];
-  maxParticipants?: number;
+  participants: Participant[];
+  maxParticipants: number;
 }
 
 export interface ProgressBarProps {
@@ -16,4 +16,8 @@ export interface ProgressBarProps {
 
 export interface ParticipantItemProps {
   participant: Participant;
+}
+
+export interface WaitingRoomCodeProps {
+  roomId?: string;
 }

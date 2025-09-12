@@ -6,10 +6,10 @@ import { MenuItem } from "./MenuItem";
 type MenuId = (typeof menu)[number]["id"];
 
 const ACTIVITY_BY_MENU = {
-  random: "RandomPage",
+  random: "RandomRoulettePage",
   topic: "TopicPage",
   manitto: "ManittoPage",
-  end: "FinishPage",
+  end: "EndingPage",
 } as const satisfies Record<MenuId, string>;
 
 export const MenuList = () => {

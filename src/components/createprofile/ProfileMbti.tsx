@@ -1,19 +1,15 @@
 import { Button } from "@/components/common";
-import { useState } from "react";
+import { mbtiPairs } from "@/constants";
+import { useMbti } from "@/hooks/users";
+import type { MBTI } from "@/types/mbti";
 
-const mbtiPairs = [
-  { dimension: "EI", options: ["E", "I"] as const },
-  { dimension: "SN", options: ["S", "N"] as const },
-  { dimension: "TF", options: ["T", "F"] as const },
-  { dimension: "JP", options: ["J", "P"] as const },
-] as const;
+interface ProfileMbtiProps {
+  mbti: MBTI | "";
+  onMbtiChange: (mbti: MBTI | "") => void;
+}
 
-export const ProfileMbti = () => {
-  const [selections, setSelections] = useState<Record<string, string>>({});
-
-  const handleSelection = (option: string, dimension: string) => {
-    setSelections((prev) => ({ ...prev, [dimension]: option }));
-  };
+export const ProfileMbti = ({ mbti, onMbtiChange }: ProfileMbtiProps) => {
+  const { handleSelection, isSelected } = useMbti(mbti, onMbtiChange);
 
   return (
     <section className="space-y-4">
@@ -25,11 +21,11 @@ export const ProfileMbti = () => {
               {pair.options.map((option, rowIndex) => (
                 <Button
                   key={`${pair.dimension}-${option}`}
-                  variant={selections[pair.dimension] === option ? "primary" : "secondary"}
+                  variant={isSelected(option, pair.dimension) ? "main" : "sub"}
                   onClick={() => handleSelection(option, pair.dimension)}
                   className={`${rowIndex === 1 ? "row-start-2" : ""} h-10`}
                   role="radio"
-                  aria-checked={selections[pair.dimension] === option}
+                  aria-checked={isSelected(option, pair.dimension)}
                 >
                   {option}
                 </Button>

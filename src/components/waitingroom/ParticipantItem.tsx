@@ -1,4 +1,4 @@
-import type { ParticipantItemProps } from "@/components/waitingroom/types";
+import type { ParticipantItemProps } from "@/components/waitingroom";
 import { User } from "lucide-react";
 
 export const ParticipantItem = ({ participant }: ParticipantItemProps) => {

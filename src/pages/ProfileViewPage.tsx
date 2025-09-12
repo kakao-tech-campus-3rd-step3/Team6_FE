@@ -5,6 +5,9 @@ import type { ActivityComponentType } from "@stackflow/react/future";
 import { useFlow } from "@stackflow/react/future";
 import { useEffect, useState } from "react";
 
+const TIMER_INTERVAL = 1000;
+const PERCENTAGE_MULTIPLIER = 100;
+
 const PROFILE_VIEW_TIME = 10;
 
 const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
@@ -15,7 +18,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
-    }, 1000);
+    }, TIMER_INTERVAL);
 
     return () => clearInterval(timer);
   }, []);
@@ -26,16 +29,16 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
       if (nextIndex === 0) {
         push("ProfileCheckPage", { title: "프로필 확인" });
+        return;
       } else {
         setCurrentProfileIndex(nextIndex);
+        setTimeLeft(PROFILE_VIEW_TIME);
       }
-
-      setTimeLeft(PROFILE_VIEW_TIME);
     }
-  }, [timeLeft, currentProfileIndex, push]);
+  }, [timeLeft, currentProfileIndex]);
 
   const currentProfile = profiles[currentProfileIndex];
-  const progressPercentage = ((PROFILE_VIEW_TIME - timeLeft) / PROFILE_VIEW_TIME) * 100;
+  const progressPercentage = ((PROFILE_VIEW_TIME - timeLeft) / PROFILE_VIEW_TIME) * PERCENTAGE_MULTIPLIER;
   const nextProfileName = currentProfileIndex < profiles.length - 1 ? profiles[currentProfileIndex + 1].name : "";
 
   return (
