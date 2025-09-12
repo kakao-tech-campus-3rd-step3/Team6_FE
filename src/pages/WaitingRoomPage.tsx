@@ -13,8 +13,14 @@ const WaitingRoomContent = () => {
   const token = useAuthStore((state) => state.token);
   const hasRedirectedRef = useRef(false);
 
-  const roomId = params?.roomId as string;
+  const roomIdParams = params?.roomId;
+  const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
   const isHost = params?.isHost === "true";
+
+  const { participants, maxParticipants, isConnected, roomSubscribed } = useWaitingRoomData({
+    roomId,
+    isHost,
+  });
 
   useEffect(() => {
     if (!token && roomId && !hasRedirectedRef.current) {
@@ -23,10 +29,13 @@ const WaitingRoomContent = () => {
     }
   }, [token, roomId, push]);
 
-  const { participants, maxParticipants, isConnected, roomSubscribed } = useWaitingRoomData({
-    roomId,
-    isHost,
-  });
+  if (!roomId) {
+    return (
+      <AppScreen appBar={{ title: "대기실" }}>
+        <main className="flex items-center justify-center p-4 text-sm text-red-600">잘못된 방 ID입니다.</main>
+      </AppScreen>
+    );
+  }
 
   const handleStartGame = () => {
     push("ProfileViewPage", { title: "프로필 소개" });
