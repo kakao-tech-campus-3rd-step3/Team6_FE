@@ -14,6 +14,14 @@ export const StompProvider = ({ brokerURL, children, token }: StompProviderProps
   useEffect(() => {
     console.log("STOMP Provider 초기화:", { brokerURL, token: token ? "EXISTS" : "NULL" });
 
+    if (!token) {
+      setClient(null);
+      setIsConnected(false);
+      setIsConnecting(false);
+      setError("인증 토큰이 없어 소켓 연결 생략");
+      return;
+    }
+
     const client = new Client({
       webSocketFactory: () => {
         const httpUrl = brokerURL.replace("ws://", "http://").replace("wss://", "https://");
@@ -21,9 +29,11 @@ export const StompProvider = ({ brokerURL, children, token }: StompProviderProps
         return new SockJS(httpUrl);
       },
 
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      connectHeaders: token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {},
 
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
