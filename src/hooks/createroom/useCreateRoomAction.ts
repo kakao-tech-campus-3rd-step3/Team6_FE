@@ -50,6 +50,8 @@ export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: b
     EMPTY_OPTIONS,
   );
 
+  const isReady = isConnected && waitingRoomSubscribed && errorSubscribed;
+
   useEffect(() => {
     if (createdRoomId) {
       push("WaitingRoomPage", {
@@ -63,8 +65,12 @@ export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: b
   }, [createdRoomId, push]);
 
   const handleCreateRoom = useCallback(async () => {
-    if (!isConnected || isCreating || !isFormValid) {
-      console.warn("방 생성 조건 불충족:", { isConnected, isCreating, isFormValid });
+    if (!isReady || isCreating || !isFormValid) {
+      console.warn("방 생성 조건 불충족:", {
+        isReady,
+        isCreating,
+        isFormValid,
+      });
       return;
     }
 
@@ -91,9 +97,7 @@ export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: b
       console.error("방 생성 요청 중 예외 발생:", error);
       setIsCreating(false);
     }
-  }, [isConnected, isCreating, isFormValid, formData.roomName, formData.capacity, publish]);
-
-  const isReady = isConnected && waitingRoomSubscribed && errorSubscribed;
+  }, [isReady, isCreating, isFormValid, formData.roomName, formData.capacity, publish]);
 
   return {
     isCreating,
