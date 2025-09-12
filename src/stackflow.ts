@@ -7,11 +7,12 @@ import RandomRoulettePage from "@/pages/RandomRoulettePage";
 import WaitingRoomPage from "@/pages/WaitingRoomPage";
 import { config } from "@/stackflow.config";
 import { basicUIPlugin } from "@stackflow/plugin-basic-ui";
+import { historySyncPlugin } from "@stackflow/plugin-history-sync";
 import { basicRendererPlugin } from "@stackflow/plugin-renderer-basic";
 import { lazy, stackflow } from "@stackflow/react/future";
 
-import MenuSelectPage from "./pages/MenuSelectPage";
 import EndingPage from "./pages/EndingPage";
+import MenuSelectPage from "./pages/MenuSelectPage";
 import TopicRecommendPage from "./pages/TopicRecommendPage";
 
 export const { Stack } = stackflow({
@@ -32,6 +33,10 @@ export const { Stack } = stackflow({
 
   plugins: [
     basicRendererPlugin(),
+    historySyncPlugin({
+      config,
+      fallbackActivity: () => "LandingPage",
+    }),
     basicUIPlugin({
       theme: "cupertino",
     }),

@@ -8,7 +8,7 @@ const LandingPage: ActivityComponentType = () => {
   const { push } = useFlow();
 
   const handleCreateRoom = () => {
-    push("CreateRoomPage", { title: "방 만들기" });
+    push("ProfilePage", { title: "프로필 설정", purpose: "create-room" });
   };
 
   const handleProfileSetup = () => {
@@ -16,12 +16,13 @@ const LandingPage: ActivityComponentType = () => {
   };
 
   const handleQRJoin = () => {
-    // TODO: QR 참여 기능 구현
+    // TODO: 배포 후 URL로 접근할 수 있도록 구현 예정
     console.log("QR로 참여하기 - 미구현");
   };
   const handleRoulette = () => {
     push("RandomRoulettePage", { title: "룰렛" });
   };
+
   return (
     <AppScreen>
       <main className="bg-gradient-primary flex flex-col items-center px-4 pt-20 pb-8">

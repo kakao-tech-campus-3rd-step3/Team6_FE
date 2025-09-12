@@ -1,7 +1,8 @@
 import type { InterestType } from "@/constants";
 import { useCreateUser } from "@/hooks/users";
+import { useAuthStore } from "@/store/authStore";
 import type { MBTI } from "@/types/mbti";
-import { useFlow } from "@stackflow/react/future";
+import { useActivity, useFlow } from "@stackflow/react/future";
 import { useCallback, useState } from "react";
 
 interface ProfileFormData {
@@ -25,7 +26,9 @@ const initialFormData: ProfileFormData = {
 export const useProfileForm = () => {
   const [formData, setFormData] = useState<ProfileFormData>(initialFormData);
   const { mutate: createUser, isPending, error } = useCreateUser();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const { push } = useFlow();
+  const { params } = useActivity();
 
   const updateField = useCallback(<K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -55,11 +58,23 @@ export const useProfileForm = () => {
         introduction: formData.introduction,
       },
       {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        onSuccess: (_data) => {
-          //TODO: 성공시 userId와 토큰을 반환하는데 토큰을 어떻게 할지 -> 웹(데스크탑,모바일)의 경우 스토리지, 만약 앱까지 하면?
+        onSuccess: (data) => {
+          setAuth(data.token, data.userId);
+          // URL에서 roomId 확인 (QR코드/링크로 들어온 참여자인지 체크)
+          const urlParams = new URLSearchParams(window.location.search);
+          const queryRoomId = urlParams.get("roomId");
+          const pathRoomId = params?.roomId as string;
+          const roomId = queryRoomId || pathRoomId;
+          const purpose = params?.purpose as string;
 
-          push("WaitingRoomPage", { title: "대기실" });
+          if (roomId) {
+            push("WaitingRoomPage", { roomId, isHost: "false" });
+          } else if (purpose === "create-room") {
+            push("CreateRoomPage", { title: "방 만들기" });
+          } else {
+            // TODO : 추후 메뉴 선택 페이지로 이동 못하고 방 만들기 or 방 참여로만 되도록 변경 예정
+            push("MenuSelectPage", {});
+          }
         },
         onError: (error) => {
           console.error("프로필 생성 실패:", error);

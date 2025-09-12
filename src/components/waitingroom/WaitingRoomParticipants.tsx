@@ -1,19 +1,8 @@
-import { ParticipantItem, ProgressBar } from "@/components/waitingroom";
-import type { WaitingRoomParticipantsProps } from "@/components/waitingroom/types";
+import { ParticipantItem, ProgressBar, type WaitingRoomParticipantsProps } from "@/components/waitingroom";
 
-const DEFAULT_MAX_PARTICIPANTS = 4;
-
-export const WaitingRoomParticipants = ({
-  participants = [
-    { id: "1", name: "참가자 1", isJoined: true },
-    { id: "2", name: "참가자 2", isJoined: true },
-    { id: "3", name: "참가자 3", isJoined: false },
-    { id: "4", name: "참가자 4", isJoined: false },
-  ],
-  maxParticipants = DEFAULT_MAX_PARTICIPANTS,
-}: WaitingRoomParticipantsProps) => {
+export const WaitingRoomParticipants = ({ participants, maxParticipants }: WaitingRoomParticipantsProps) => {
   const joinedCount = participants.filter((p) => p.isJoined).length;
-
+  // TODO : 백엔드와 논의 후 참가자 목록 UI 수정 예정
   return (
     <section
       className="flex w-full flex-col items-center gap-2 rounded-xl bg-white p-2"
@@ -28,7 +17,7 @@ export const WaitingRoomParticipants = ({
       <ProgressBar current={joinedCount} max={maxParticipants} />
       <ul className="flex w-full flex-col gap-2" role="list">
         {participants.map((participant) => (
-          <ParticipantItem key={participant.id} participant={participant} />
+          <ParticipantItem key={participant.userId} participant={participant} />
         ))}
       </ul>
     </section>
