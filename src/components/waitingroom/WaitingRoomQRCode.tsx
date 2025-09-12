@@ -3,7 +3,12 @@ import QRCode from "react-qr-code";
 
 export const WaitingRoomQRCode = ({ roomId }: WaitingRoomCodeProps) => {
   // 방 참여를 위한 URL 생성
-  const shareUrl = roomId ? `${window.location.origin}?roomId=${roomId}` : window.location.href;
+  const shareUrl =
+    typeof window !== "undefined"
+      ? roomId
+        ? `${window.location.origin}/waiting-room/${encodeURIComponent(roomId)}`
+        : window.location.href
+      : "";
   // TODO: 구현 예정 기능들
   // 1. 앱 초기 로딩 시 URL의 roomId parameter 체크
   // 2. QR 스캔 참여자 플로우 결정:
