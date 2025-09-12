@@ -1,7 +1,9 @@
+import type { PurposeId } from "@/constants";
+
 export interface CreateRoomFormData {
   roomName: string;
   capacity: number;
-  purpose: "business" | "personal" | "drinking" | "";
+  purpose: PurposeId | "";
 }
 
 export interface CreateRoomActionReturn {
