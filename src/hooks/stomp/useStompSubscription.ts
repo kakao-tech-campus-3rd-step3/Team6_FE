@@ -53,7 +53,13 @@ export const useStompSubscription = (
       if (options.id) subscribeHeaders.id = options.id;
       if (options.ack) subscribeHeaders.ack = options.ack;
 
-      console.log(`구독 시도: ${destination}`, { headers: subscribeHeaders });
+      if (process.env.NODE_ENV === 'development') {
+        const safeHeaders = { ...subscribeHeaders };
+        if (safeHeaders.Authorization) {
+          safeHeaders.Authorization = '[REDACTED]';
+        }
+        console.log(`구독 시도: ${destination}`, { headers: safeHeaders });
+      }
 
       const subscription = client.subscribe(
         destination,
