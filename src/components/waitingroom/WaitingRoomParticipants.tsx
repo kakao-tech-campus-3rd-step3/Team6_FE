@@ -1,7 +1,7 @@
 import { ParticipantItem, ProgressBar, type WaitingRoomParticipantsProps } from "@/components/waitingroom";
 
 export const WaitingRoomParticipants = ({ participants, maxParticipants }: WaitingRoomParticipantsProps) => {
-  const joinedCount = participants.length;
+  const joinedCount = participants.filter((p) => p.isJoined).length;
   // TODO : 백엔드와 논의 후 참가자 목록 UI 수정 예정
   return (
     <section
