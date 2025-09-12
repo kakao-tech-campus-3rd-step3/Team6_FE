@@ -14,6 +14,11 @@ export default defineConfig({
   define: {
     global: "globalThis",
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: { global: "globalThis" },
+    },
+  },
   preview: {
     port: 5173,
   },
