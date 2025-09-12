@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 
 const initialFormData: CreateRoomFormData = {
   roomName: "",
-  capacity: 2,
+  capacity: MIN_PARTICIPANT,
   purpose: "",
 };
 
@@ -22,11 +22,11 @@ export const useCreateRoomForm = () => {
   };
 
   const updateCapacity = (capacity: number) => {
-    if (isNaN(capacity)) {
-      setFormData((prev) => ({ ...prev, capacity: 2 }));
-    } else {
-      setFormData((prev) => ({ ...prev, capacity }));
-    }
+    setFormData((prev) => {
+      const n = Number.isNaN(capacity) ? MIN_PARTICIPANT : capacity;
+      const clamped = Math.min(MAX_PARTICIPANT, Math.max(MIN_PARTICIPANT, n));
+      return { ...prev, capacity: clamped };
+    });
   };
 
   const updatePurpose = (purpose: CreateRoomFormData["purpose"]) => {
