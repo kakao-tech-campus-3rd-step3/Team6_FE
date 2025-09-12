@@ -59,8 +59,6 @@ export const useProfileForm = () => {
       },
       {
         onSuccess: (data) => {
-          console.log("프로필 생성 성공, 토큰 저장됨:", data);
-
           setAuth(data.token, data.userId);
           // URL에서 roomId 확인 (QR코드/링크로 들어온 참여자인지 체크)
           const urlParams = new URLSearchParams(window.location.search);
