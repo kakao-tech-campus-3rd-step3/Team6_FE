@@ -1,9 +1,14 @@
 import { Button } from "@/components/common";
-import { INTERESTS } from "@/constants";
+import { INTERESTS, type InterestType } from "@/constants";
 import { useMultiSelection } from "@/hooks";
 
-export const ProfileInterests = () => {
-  const { toggleSelection, isSelected } = useMultiSelection<string>();
+interface ProfileInterestsProps {
+  interests: InterestType[];
+  onInterestsChange: (interests: InterestType[]) => void;
+}
+
+export const ProfileInterests = ({ interests, onInterestsChange }: ProfileInterestsProps) => {
+  const { toggleSelection, isSelected } = useMultiSelection<InterestType>(interests, onInterestsChange);
 
   return (
     <section className="space-y-4">
@@ -13,7 +18,7 @@ export const ProfileInterests = () => {
           {INTERESTS.map((interest) => (
             <Button
               key={interest}
-              variant={isSelected(interest) ? "primary" : "ghost"}
+              variant={isSelected(interest) ? "main" : "text"}
               onClick={() => toggleSelection(interest)}
               className="h-10 text-base"
               aria-pressed={isSelected(interest)}

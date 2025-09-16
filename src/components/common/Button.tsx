@@ -2,17 +2,17 @@ import { cn } from "@/utils/cn";
 import type { ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "main" | "sub" | "border" | "text";
 }
 
 const buttonVariants = {
-  primary: "bg-primary text-white",
-  secondary: "bg-secondary text-white",
-  outline: "border-primary text-primary border-2 bg-transparent",
-  ghost: "border-none bg-white text-black",
+  main: "bg-primary text-white",
+  sub: "bg-secondary text-primary",
+  border: "border-primary text-primary border-2 bg-transparent",
+  text: "border-none bg-white text-black",
 } as const;
 
-const Button = ({ className, variant = "primary", type = "button", ...props }: ButtonProps) => {
+const Button = ({ className, variant = "main", type = "button", ...props }: ButtonProps) => {
   return (
     <button
       type={type}
