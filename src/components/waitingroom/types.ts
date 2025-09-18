@@ -1,7 +1,7 @@
 export interface Participant {
-  userId: string;
+  id: number;
   name: string;
-  isJoined: boolean;
+  role: 'HOST' | 'MEMBER';
 }
 
 export interface WaitingRoomParticipantsProps {
@@ -11,7 +11,7 @@ export interface WaitingRoomParticipantsProps {
 
 export interface ProgressBarProps {
   current: number;
-  max: number;
+  capacity: number;
 }
 
 export interface ParticipantItemProps {

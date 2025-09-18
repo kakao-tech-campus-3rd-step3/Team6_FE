@@ -11,20 +11,20 @@ interface UseWaitingRoomDataProps {
 interface ServerParticipant {
   id: number;
   name: string;
+  role: "HOST" | "MEMBER";
 }
-const TEMP_MAX_PARTICIPANTS = 4;
 const EMPTY_OPTIONS = {};
 
 export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) => {
   const { publish, isConnected } = useStompPublish();
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [maxParticipants, setMaxParticipants] = useState(TEMP_MAX_PARTICIPANTS);
+  const [maxParticipants, setMaxParticipants] = useState<number>(0);
 
   const normalizeParticipant = useCallback(
-    (p: Participant): Participant => ({
-      ...p,
-      userId: String(p.userId),
-      isJoined: p.isJoined ?? true,
+    (p: ServerParticipant): Participant => ({
+      id: p.id,
+      name: p.name,
+      role: p.role,
     }),
     [],
   );
@@ -34,46 +34,41 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
       console.log(`방 ${roomId} 메시지:`, message.body);
       try {
         const data = JSON.parse(message.body);
-        const roomData = data.data || data;
-        console.log(roomData);
-        if (Array.isArray(roomData.participants) && typeof roomData.capacity === "number") {
-          console.log("전체 방 정보 업데이트:", roomData);
-          const normalizedParticipants = roomData.participants.map(normalizeParticipant);
+        const payload = data.data?.payload || data.payload || data;
+        console.log(payload);
+
+        if (payload.room && Array.isArray(payload.participants)) {
+          console.log("전체 방 정보 업데이트:", payload);
+          const normalizedParticipants = payload.participants.map(normalizeParticipant);
           setParticipants(normalizedParticipants);
-          setMaxParticipants(roomData.capacity);
+          setMaxParticipants(payload.room.capacity);
           return;
         }
 
-        if (roomData.type === "PARTICIPANT_LIST" || roomData.participants) {
-          const participantList = (roomData.participants || []).map(normalizeParticipant);
+        if (payload.type === "PARTICIPANT_LIST" || payload.participants) {
+          const participantList = (payload.participants || []).map(normalizeParticipant);
           console.log("참가자 목록 업데이트:", participantList);
           setParticipants(participantList);
           return;
         }
 
-        if (roomData.type === "PARTICIPANT_JOINED" && roomData.newParticipant) {
-          console.log("PARTICIPANT_JOINED - 새 참가자 추가:", roomData.newParticipant);
-          const newParticipants = roomData.newParticipant.map((p: ServerParticipant) =>
-            normalizeParticipant({
-              userId: String(p.id),
-              name: p.name,
-              isJoined: true,
-            }),
-          );
+        if (payload.type === "PARTICIPANT_JOINED" && payload.newParticipant) {
+          console.log("PARTICIPANT_JOINED - 새 참가자 추가:", payload.newParticipant);
+          const newParticipants = payload.newParticipant.map(normalizeParticipant);
 
           setParticipants((prev) => {
             const merged = [...prev, ...newParticipants];
             const uniqueParticipants = merged.filter(
-              (participant, index) => merged.findIndex((p) => p.userId === participant.userId) === index,
+              (participant, index) => merged.findIndex((p) => p.id === participant.id) === index,
             );
             return uniqueParticipants;
           });
           return;
         }
 
-        if (roomData.type === "USER_LEFT" && roomData.userId) {
-          console.log("참가자 퇴장:", roomData.userId);
-          setParticipants((prev) => prev.filter((p) => p.userId !== String(roomData.userId)));
+        if (payload.type === "USER_LEFT" && payload.userId) {
+          console.log("참가자 퇴장:", payload.userId);
+          setParticipants((prev) => prev.filter((p) => p.id !== payload.userId));
           return;
         }
       } catch (error) {
