@@ -1,111 +1,112 @@
-import type { Participant } from "@/components/waitingroom/types";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
+import { subscriptionManager } from "@/hooks/stomp/StompSubscriptionManager";
 import type { IMessage } from "@stomp/stompjs";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
+
+import { waitingRoomReducer } from "./waitingRoomReducer";
 
 interface UseWaitingRoomDataProps {
   roomId: string;
   isHost: boolean;
 }
 
-interface ServerParticipant {
-  id: number;
-  name: string;
-}
-const TEMP_MAX_PARTICIPANTS = 4;
-const EMPTY_OPTIONS = {};
+const SYNC_DELAY = 100;
 
 export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) => {
   const { publish, isConnected } = useStompPublish();
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [maxParticipants, setMaxParticipants] = useState(TEMP_MAX_PARTICIPANTS);
+  const [state, dispatch] = useReducer(waitingRoomReducer, {
+    participants: [],
+    maxParticipants: 0,
+  });
 
-  const normalizeParticipant = useCallback(
-    (p: Participant): Participant => ({
-      ...p,
-      userId: String(p.userId),
-      isJoined: p.isJoined ?? true,
-    }),
-    [],
-  );
+  const instanceId = useRef(`instance-${Date.now()}-${Math.random()}`);
 
   const handleRoomMessage = useCallback(
     (message: IMessage) => {
-      console.log(`방 ${roomId} 메시지:`, message.body);
+      console.log(`[${instanceId.current}] 방 ${roomId} 메시지:`, message.body);
       try {
         const data = JSON.parse(message.body);
-        const roomData = data.data || data;
-        console.log(roomData);
-        if (Array.isArray(roomData.participants) && typeof roomData.capacity === "number") {
-          console.log("전체 방 정보 업데이트:", roomData);
-          const normalizedParticipants = roomData.participants.map(normalizeParticipant);
-          setParticipants(normalizedParticipants);
-          setMaxParticipants(roomData.capacity);
-          return;
-        }
+        const payload = data.data?.payload || data.payload || data;
+        console.log(payload);
 
-        if (roomData.type === "PARTICIPANT_LIST" || roomData.participants) {
-          const participantList = (roomData.participants || []).map(normalizeParticipant);
-          console.log("참가자 목록 업데이트:", participantList);
-          setParticipants(participantList);
-          return;
-        }
-
-        if (roomData.type === "PARTICIPANT_JOINED" && roomData.newParticipant) {
-          console.log("PARTICIPANT_JOINED - 새 참가자 추가:", roomData.newParticipant);
-          const newParticipants = roomData.newParticipant.map((p: ServerParticipant) =>
-            normalizeParticipant({
-              userId: String(p.id),
-              name: p.name,
-              isJoined: true,
-            }),
-          );
-
-          setParticipants((prev) => {
-            const merged = [...prev, ...newParticipants];
-            const uniqueParticipants = merged.filter(
-              (participant, index) => merged.findIndex((p) => p.userId === participant.userId) === index,
-            );
-            return uniqueParticipants;
+        if (payload.room && Array.isArray(payload.participants)) {
+          console.log("전체 방 정보 업데이트:", payload);
+          dispatch({
+            type: "ROOM_INFO_UPDATE",
+            payload: { participants: payload.participants, room: payload.room },
           });
           return;
         }
 
-        if (roomData.type === "USER_LEFT" && roomData.userId) {
-          console.log("참가자 퇴장:", roomData.userId);
-          setParticipants((prev) => prev.filter((p) => p.userId !== String(roomData.userId)));
+        if (payload.type === "PARTICIPANT_LIST" || payload.participants) {
+          console.log("참가자 목록 업데이트:", payload.participants || []);
+          dispatch({
+            type: "PARTICIPANT_LIST",
+            payload: { participants: payload.participants || [] },
+          });
+          return;
+        }
+
+        if (payload.type === "PARTICIPANT_JOINED" && payload.newParticipant) {
+          console.log("PARTICIPANT_JOINED - 새 참가자 추가:", payload.newParticipant);
+          dispatch({
+            type: "PARTICIPANT_JOINED",
+            payload: { newParticipant: payload.newParticipant },
+          });
+          return;
+        }
+
+        if (payload.type === "USER_LEFT" && payload.userId) {
+          console.log("참가자 퇴장:", payload.userId);
+          dispatch({
+            type: "USER_LEFT",
+            payload: { userId: payload.userId },
+          });
+
           return;
         }
       } catch (error) {
-        console.error(`방 ${roomId} 메시지 파싱 오류:`, error);
+        console.error(`[${instanceId.current}] 방 ${roomId} 메시지 파싱 오류:`, error);
       }
     },
-    [roomId, normalizeParticipant],
+    [roomId],
   );
 
   const handleErrorMessage = useCallback((message: IMessage) => {
-    console.error("에러:", message.body);
+    console.error(`[${instanceId.current}] 에러:`, message.body);
   }, []);
 
   const { isSubscribed: roomSubscribed } = useStompSubscription(
     roomId ? `/topic/waiting-room/${roomId}` : null,
     handleRoomMessage,
-    EMPTY_OPTIONS,
+    {},
   );
 
-  useStompSubscription("/user/queue/errors", handleErrorMessage, EMPTY_OPTIONS);
+  const { isSubscribed: errorSubscribed } = useStompSubscription("/user/queue/errors", handleErrorMessage, {});
 
   useEffect(() => {
-    if (roomId && !isHost && isConnected) {
-      publish(`/app/waiting-room/${roomId}/join`, {});
-      console.log(`[참여자] 방 ${roomId} 참여 요청 전송`);
+    if (!roomId || isHost || !isConnected || !roomSubscribed) {
+      return;
     }
-  }, [roomId, isHost, isConnected, publish]);
+
+    const topic = `/topic/waiting-room/${roomId}`;
+    if (subscriptionManager.isSubscribed(topic)) {
+      console.log(`[${instanceId.current}] 이미 구독됨: ${roomId}`);
+
+      const timer = setTimeout(() => {
+        publish(`/app/waiting-room/${roomId}/join`, {});
+        console.log(`[${instanceId.current}] 방 ${roomId} 참여 요청 전송`);
+      }, SYNC_DELAY);
+
+      return () => clearTimeout(timer);
+    }
+  }, [roomId, isHost, isConnected, publish, roomSubscribed]);
 
   return {
-    participants,
-    maxParticipants,
+    participants: state.participants,
+    maxParticipants: state.maxParticipants,
     isConnected,
     roomSubscribed,
+    errorSubscribed,
   };
 };
