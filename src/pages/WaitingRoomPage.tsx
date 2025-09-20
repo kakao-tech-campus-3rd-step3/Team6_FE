@@ -1,17 +1,14 @@
 import { Button } from "@/components/common";
+import { AuthGuard } from "@/components/guards/AuthGuard";
 import { WaitingMessage, WaitingRoomCode, WaitingRoomParticipants, WaitingRoomQRCode } from "@/components/waitingroom";
 import { useWaitingRoomData } from "@/hooks/waitingroom";
-import { useAuthStore } from "@/store/authStore";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
 import { useActivity, useFlow } from "@stackflow/react/future";
-import { useEffect, useRef } from "react";
 
 const WaitingRoomContent = () => {
   const { push } = useFlow();
   const { params } = useActivity();
-  const token = useAuthStore((state) => state.token);
-  const hasRedirectedRef = useRef(false);
 
   const roomIdParams = params?.roomId;
   const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
@@ -21,13 +18,6 @@ const WaitingRoomContent = () => {
     roomId,
     isHost,
   });
-
-  useEffect(() => {
-    if (!token && roomId && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
-      push("ProfilePage", { roomId });
-    }
-  }, [token, roomId, push]);
 
   if (!roomId) {
     return (
@@ -74,7 +64,11 @@ const WaitingRoomContent = () => {
 };
 
 const WaitingRoomPage: ActivityComponentType<"WaitingRoomPage"> = () => {
-  return <WaitingRoomContent />;
+  return (
+    <AuthGuard>
+      <WaitingRoomContent />
+    </AuthGuard>
+  );
 };
 
 export default WaitingRoomPage;
