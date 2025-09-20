@@ -1,7 +1,7 @@
 import { ParticipantItem, ProgressBar, type WaitingRoomParticipantsProps } from "@/components/waitingroom";
 
 export const WaitingRoomParticipants = ({ participants, maxParticipants }: WaitingRoomParticipantsProps) => {
-  const joinedCount = participants.filter((p) => p.isJoined).length;
+  const joinedCount = participants.length;
   // TODO : 백엔드와 논의 후 참가자 목록 UI 수정 예정
   return (
     <section
@@ -14,10 +14,10 @@ export const WaitingRoomParticipants = ({ participants, maxParticipants }: Waiti
       <div className="text-primary text-3xl font-bold" aria-live="polite">
         {joinedCount} / {maxParticipants}
       </div>
-      <ProgressBar current={joinedCount} max={maxParticipants} />
+      <ProgressBar current={joinedCount} capacity={maxParticipants} />
       <ul className="flex w-full flex-col gap-2" role="list">
         {participants.map((participant) => (
-          <ParticipantItem key={participant.userId} participant={participant} />
+          <ParticipantItem key={participant.id} participant={participant} />
         ))}
       </ul>
     </section>
