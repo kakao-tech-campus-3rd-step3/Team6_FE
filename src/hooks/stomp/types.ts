@@ -1,7 +1,4 @@
-import type { Client } from "@stomp/stompjs";
-
 export interface StompConnectionReturn {
-  client: Client | null;
   isConnected: boolean;
   isConnecting: boolean;
   error: string | null;
@@ -19,12 +16,7 @@ export interface StompPublishReturn {
 }
 
 export interface StompSubscriptionOptions {
-  id?: string;
-  ack?: "client-individual" | "client" | "auto";
   headers?: Record<string, string>;
 }
 
-export interface StompSubscriptionReturn {
-  isSubscribed: boolean;
-  error: string | null;
-}
+export type StompSubscriptionReturn = void;
