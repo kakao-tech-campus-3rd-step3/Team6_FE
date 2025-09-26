@@ -14,7 +14,7 @@ const WaitingRoomContent = () => {
   const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
   const isHost = params?.isHost === "true";
 
-  const { participants, maxParticipants, isConnected, roomSubscribed } = useWaitingRoomData({
+  const { participants, maxParticipants, isConnected } = useWaitingRoomData({
     roomId,
     isHost,
   });
@@ -48,14 +48,7 @@ const WaitingRoomContent = () => {
         {!isConnected && (
           <div className="flex items-center justify-center space-x-2 text-center text-sm text-white/80">
             <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-400" />
-            <span>서버 연결 중...</span>
-          </div>
-        )}
-
-        {isConnected && !roomSubscribed && (
-          <div className="flex items-center justify-center space-x-2 text-center text-sm text-white/80">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
-            <span>방 정보 동기화 중...</span>
+            <span>서버에 연결하고 방 정보를 가져오는 중...</span>
           </div>
         )}
       </main>
