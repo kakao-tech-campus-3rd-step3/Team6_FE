@@ -4,8 +4,6 @@ import { useFlow } from "@stackflow/react/future";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useState } from "react";
 
-const EMPTY_OPTIONS = {};
-
 export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: boolean): CreateRoomActionReturn => {
   const { push } = useFlow();
   const { publish, isConnected } = useStompPublish();
@@ -38,19 +36,11 @@ export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: b
     setIsCreating(false);
   }, []);
 
-  const { isSubscribed: waitingRoomSubscribed } = useStompSubscription(
-    "/user/queue/waiting-room",
-    handleWaitingRoomMessage,
-    EMPTY_OPTIONS,
-  );
+  useStompSubscription("/user/queue/waiting-room", handleWaitingRoomMessage);
 
-  const { isSubscribed: errorSubscribed } = useStompSubscription(
-    "/user/queue/errors",
-    handleErrorMessage,
-    EMPTY_OPTIONS,
-  );
+  useStompSubscription("/user/queue/errors", handleErrorMessage);
 
-  const isReady = isConnected && waitingRoomSubscribed && errorSubscribed;
+  const isReady = isConnected;
 
   useEffect(() => {
     if (createdRoomId) {
