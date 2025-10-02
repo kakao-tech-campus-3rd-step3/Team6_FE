@@ -1,3 +1,4 @@
+import { StompMonitor } from "@/components/dev/StompMonitor";
 import { Layout } from "@/layouts";
 import { queryClient } from "@/lib/queryClient";
 import { Stack } from "@/stackflow";
@@ -9,6 +10,7 @@ export const App = () => {
       <Layout>
         <Stack />
       </Layout>
+      {process.env.NODE_ENV === "development" && <StompMonitor />}
     </QueryClientProvider>
   );
 };
