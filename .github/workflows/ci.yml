@@ -75,6 +75,9 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run type check and build
         run: pnpm run build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_STOMP_URL: ${{ secrets.VITE_STOMP_URL }}
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
