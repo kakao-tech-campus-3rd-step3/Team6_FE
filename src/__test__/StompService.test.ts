@@ -40,7 +40,8 @@ describe("StompService", () => {
       expect(Client).not.toHaveBeenCalled();
       const state = stompService.getState();
       expect(state.isConnected).toBe(false);
-      expect(state.error).toContain("인증 토큰이 없어");
+      expect(state.error).not.toBeNull();
+      expect(state.error?.message).toContain("인증 토큰");
     });
 
     it("토큰이 있을 때, 클라이언트를 생성해야 한다.", () => {
