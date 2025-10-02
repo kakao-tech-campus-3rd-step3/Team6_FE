@@ -33,7 +33,7 @@ const WaitingRoomContent = () => {
 
   return (
     <AppScreen appBar={{ title: "대기실" }}>
-      <main className="bg-gradient-primary flex flex-col items-center space-y-4 p-4 pb-8">
+      <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 p-4 pb-8">
         <WaitingRoomCode roomId={roomId} />
         <WaitingMessage />
         <WaitingRoomQRCode roomId={roomId} />

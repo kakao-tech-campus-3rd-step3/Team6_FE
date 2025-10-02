@@ -8,7 +8,7 @@ const CreateRoomPage: ActivityComponentType = () => {
 
   return (
     <AppScreen appBar={{ title: "방 만들기" }}>
-      <main className="bg-gradient-primary space-y-4 p-4 pb-8">
+      <main className="bg-gradient-primary min-h-screen space-y-4 p-4 pb-8">
         <RoomInfoSection
           roomName={formData.roomName}
           capacity={formData.capacity}
