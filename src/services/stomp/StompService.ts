@@ -1,3 +1,4 @@
+import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import type { StateListener, StompState, Unsubscribe } from "@/services/stomp/types";
 import { useAuthStore } from "@/store/authStore";
 import { Client, type IFrame, type IMessage, type StompSubscription } from "@stomp/stompjs";
@@ -51,7 +52,7 @@ class StompService {
     }
 
     if (!token) {
-      this.setState({ isConnected: false, isConnecting: false, error: "인증 토큰이 없어 소켓 연결 생략" });
+      this.setState({ isConnected: false, isConnecting: false, error: StompErrorFactory.noToken() });
       this.client = null;
       return;
     }
@@ -65,30 +66,26 @@ class StompService {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      debug: (str) => console.log("STOMP Debug:", str),
       onConnect: () => {
         this.setState({ isConnected: true, isConnecting: false, error: null });
-        console.log("STOMP 연결 성공");
       },
       onDisconnect: () => {
         this.setState({ isConnected: false, isConnecting: false });
-        console.log("STOMP 연결 해제");
       },
       onStompError: (frame: IFrame) => {
-        const error = frame.body || frame.headers?.message || "STOMP 프로토콜 에러";
+        const error = StompErrorFactory.fromStompFrame(frame);
         this.setState({ isConnected: false, isConnecting: false, error });
-        console.error("STOMP 에러:", error, frame);
       },
       onWebSocketError: (event) => {
-        this.setState({ isConnected: false, isConnecting: false, error: "웹소켓 연결 오류" });
-        console.error("웹소켓 에러:", event);
+        const error = StompErrorFactory.fromWebSocketError(event);
+        this.setState({ isConnected: false, isConnecting: false, error });
       },
       onWebSocketClose: (event) => {
         this.setState({ isConnected: false });
         if (!event.wasClean) {
-          this.setState({ isConnecting: true, error: "웹소켓 연결이 예기치 않게 종료됨" });
+          const error = StompErrorFactory.fromWebSocketClose(event);
+          this.setState({ isConnecting: true, error });
         }
-        console.log("웹소켓 연결 종료", event);
       },
     });
   }
@@ -99,9 +96,8 @@ class StompService {
       try {
         this.client.activate();
       } catch (err) {
-        const error = err instanceof Error ? err.message : "STOMP 활성화 실패";
+        const error = StompErrorFactory.fromActivationError(err);
         this.setState({ isConnecting: false, error });
-        console.error("STOMP 활성화 실패:", err);
       }
     }
   }
@@ -113,9 +109,9 @@ class StompService {
         this.messageHandlers.clear();
         this.stompSubscriptions.clear();
         this.setState({ isConnected: false, isConnecting: false, error: null });
-        console.log("STOMP 연결 해제됨");
       } catch (err) {
-        console.error("STOMP 해제 실패:", err);
+        const error = StompErrorFactory.fromConnectionError(err);
+        this.setState({ error });
       }
     }
   }
@@ -126,7 +122,7 @@ class StompService {
     options: { headers?: Record<string, string>; skipContentLengthHeader?: boolean } = {},
   ): boolean {
     if (!this.client || !this.state.isConnected) {
-      console.error("STOMP 클라이언트가 연결되지 않았습니다. 메시지 발행 실패.");
+      this.setState({ error: StompErrorFactory.notConnected() });
       return false;
     }
 
@@ -152,11 +148,10 @@ class StompService {
         skipContentLengthHeader: options.skipContentLengthHeader,
       });
 
-      console.log(`메시지 발송 성공: ${destination}`);
       return true;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "메시지 발송 중 오류가 발생했습니다";
-      console.error(`메시지 발송 실패: ${destination}`, errorMessage);
+      const error = StompErrorFactory.fromPublishError(destination, err);
+      this.setState({ error });
       return false;
     }
   }
@@ -171,18 +166,22 @@ class StompService {
 
     if (!this.stompSubscriptions.has(destination)) {
       if (this.client && this.state.isConnected) {
-        const subscription = this.client.subscribe(destination, (message: IMessage) => {
-          this.messageHandlers.get(destination)?.forEach((handler) => {
-            try {
-              handler(message);
-            } catch (err) {
-              console.error(`메시지 핸들러 오류 [${destination}]:`, err);
-            }
+        try {
+          const subscription = this.client.subscribe(destination, (message: IMessage) => {
+            this.messageHandlers.get(destination)?.forEach((handler) => {
+              try {
+                handler(message);
+              } catch (err) {
+                const error = StompErrorFactory.fromMessageParseError(err, message.body);
+                this.setState({ error });
+              }
+            });
           });
-        });
-        this.stompSubscriptions.set(destination, subscription);
-      } else {
-        console.warn(`STOMP 클라이언트가 연결되지 않아 [${destination}] 구독을 지연합니다.`);
+          this.stompSubscriptions.set(destination, subscription);
+        } catch (err) {
+          const error = StompErrorFactory.fromSubscriptionError(destination, err);
+          this.setState({ error });
+        }
       }
     }
 
@@ -194,10 +193,26 @@ class StompService {
           this.messageHandlers.delete(destination);
           this.stompSubscriptions.get(destination)?.unsubscribe();
           this.stompSubscriptions.delete(destination);
-          console.log(`STOMP 구독 해제: ${destination}`);
         }
       }
     };
+  }
+
+  public getDebugInfo() {
+    if (import.meta.env.DEV) {
+      return {
+        messageHandlersSize: this.messageHandlers.size,
+        stompSubscriptionsSize: this.stompSubscriptions.size,
+        stateListenersSize: this.stateListeners.size,
+        messageHandlers: Array.from(this.messageHandlers.entries()).map(([dest, handlers]) => ({
+          destination: dest,
+          handlerCount: handlers.size,
+        })),
+        stompSubscriptions: Array.from(this.stompSubscriptions.keys()),
+        state: this.state,
+      };
+    }
+    return null;
   }
 }
 
