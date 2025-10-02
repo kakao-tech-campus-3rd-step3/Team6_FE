@@ -66,6 +66,7 @@ export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: b
       }
     } catch {
       setIsCreating(false);
+      setShouldSubscribe(true);
     }
   }, [isReady, isCreating, isFormValid, formData.roomName, formData.capacity, publish]);
 
