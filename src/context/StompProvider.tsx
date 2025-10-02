@@ -1,7 +1,6 @@
 import { useStompSubscription } from "@/hooks/stomp";
 import { stompService } from "@/services/stomp/StompService";
-import type { IMessage } from "@stomp/stompjs";
-import { type ReactNode, useCallback, useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 
 export interface StompProviderProps {
   brokerURL: string;
@@ -19,15 +18,13 @@ export const StompProvider = ({ brokerURL, children, token }: StompProviderProps
     };
   }, [brokerURL, token]);
 
-  const handleGlobalError = useCallback((message: IMessage) => {
+  const handleGlobalError = () => {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const error = JSON.parse(message.body);
       // TODO : 에러를 토스트같은 UI로 표시해주기
     } catch {
       //
     }
-  }, []);
+  };
 
   useStompSubscription("/user/queue/errors", handleGlobalError);
 
