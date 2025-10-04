@@ -1,7 +1,8 @@
-import type { Participant } from "@/components/waitingroom";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useState } from "react";
+
+import type { Participant } from "./types";
 
 const SYNC_DELAY = 100;
 
