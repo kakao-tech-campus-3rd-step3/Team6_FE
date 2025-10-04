@@ -1,11 +1,6 @@
 import profileImage from "@/assets/profileimg.png";
+import type { ProfileCardProps } from "@/components/profileview";
 import { Calendar, UserRound } from "lucide-react";
-
-import type { Profile } from "./types";
-
-interface ProfileCardProps {
-  profile: Profile;
-}
 
 export const ProfileCard = ({ profile }: ProfileCardProps) => {
   return (
@@ -35,7 +30,7 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
           <UserRound className="h-4 w-4" aria-hidden="true" />
           <span className="text-primary text-sm">
             <span className="sr-only">MBTI: </span>
-            {profile.mbti}
+            {profile.mbtiType}
           </span>
         </div>
       </section>
@@ -50,10 +45,10 @@ export const ProfileCard = ({ profile }: ProfileCardProps) => {
         </ul>
       </section>
 
-      {profile.intro && (
+      {profile.introduction && (
         <section aria-label="한줄 소개">
           <h3 className="mb-2 text-sm font-semibold text-gray-700">한줄 소개</h3>
-          <p className="text-sm leading-relaxed text-gray-600">{profile.intro}</p>
+          <p className="text-sm leading-relaxed text-gray-600">{profile.introduction}</p>
         </section>
       )}
     </article>

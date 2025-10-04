@@ -1,7 +1,4 @@
-interface PageDotsProps {
-  totalCount: number;
-  currentIndex: number;
-}
+import type { PageDotsProps } from "@/components/profileview";
 
 export const PageDots = ({ totalCount, currentIndex }: PageDotsProps) => {
   return (
