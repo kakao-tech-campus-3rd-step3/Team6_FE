@@ -1,13 +1,14 @@
 import { Button } from "@/components/common";
+import type { ProfileCheckReadyButtonProps } from "@/components/profilecheck/types";
 
-interface ProfileCheckReadyButtonProps {
-  onReadyClick: () => void;
-}
+const ProfileCheckReadyButton = ({ onReadyClick, isHost }: ProfileCheckReadyButtonProps) => {
+  if (!isHost) {
+    return null;
+  }
 
-const ProfileCheckReadyButton = ({ onReadyClick }: ProfileCheckReadyButtonProps) => {
   return (
     <Button onClick={onReadyClick} className="mt-4 w-full text-[18px] font-semibold">
-      준비 완료
+      시작하기
     </Button>
   );
 };
