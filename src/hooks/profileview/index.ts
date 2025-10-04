@@ -1,2 +1,4 @@
 export { useRoomParticipants } from "./useRoomParticipants";
-export { type Participant } from "./types";
+export { useSwipe } from "./useSwipe";
+export { useProfileNavigation } from "./useProfileNavigation";
+export type { Participant, UseProfileNavigationOptions, UseSwipeOptions } from "./types";

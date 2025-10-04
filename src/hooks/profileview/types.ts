@@ -6,3 +6,14 @@ export interface Participant {
   interests: string[];
   introduction?: string;
 }
+
+export interface UseProfileNavigationOptions {
+  totalCount: number;
+  onComplete?: () => void;
+}
+
+export interface UseSwipeOptions {
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
+  threshold?: number;
+}
