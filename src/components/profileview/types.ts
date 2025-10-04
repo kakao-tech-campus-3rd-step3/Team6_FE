@@ -14,3 +14,13 @@ export interface NextProfileProps {
   totalCount: number;
   nextProfileName: string;
 }
+
+export interface ProfileNavigationSectionProps {
+  currentProfile: Participant;
+  currentIndex: number;
+  totalCount: number;
+  canGoPrev: boolean;
+  canGoNext: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+}
