@@ -1,6 +1,6 @@
 import { Row } from "@/components/dev/Row";
 import { Section } from "@/components/dev/Section";
-import type { DebugInfo } from "@/components/dev/types";
+import type { DebugInfo, PerformanceWithMemory } from "@/components/dev/types";
 import { stompService } from "@/services/stomp/StompService";
 import { useEffect, useState } from "react";
 
@@ -11,9 +11,63 @@ const MEMORY_LEAK_THRESHOLD = {
 } as const;
 
 const REFRESH_INTERVAL_MS = 1000;
+const MAX_HISTORY_POINTS = 30;
+
+const formatBytes = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+
+const MemoryUsageGraph = ({
+  history,
+  limit,
+  total,
+  width = 400,
+  height = 120,
+}: {
+  history: number[];
+  limit: number;
+  total: number;
+  width?: number;
+  height?: number;
+}) => {
+  if (history.length < 2) {
+    return <div className="py-4 text-center text-gray-500 italic">메모리 데이터 수집 중...</div>;
+  }
+
+  const maxHistory = Math.max(...history);
+  const maxVal = Math.max(total, maxHistory) * 1.2 || 1;
+
+  const toY = (val: number) => height - (val / maxVal) * height;
+
+  const points = history.map((val, i) => `${(i / (history.length - 1)) * width},${toY(val)}`).join(" ");
+
+  const limitY = toY(limit);
+  const totalY = toY(total);
+
+  return (
+    <div className="relative">
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full rounded-md bg-gray-900">
+        <line x1="0" y1={limitY} x2={width} y2={limitY} stroke="#e53e3e" strokeWidth="0.5" strokeDasharray="2" />
+        <line x1="0" y1={totalY} x2={width} y2={totalY} stroke="#f6e05e" strokeWidth="0.5" />
+        <polyline fill="none" stroke="#4299e1" strokeWidth="1.5" points={points} />
+      </svg>
+      <div className="bg-opacity-50 absolute top-0 right-0 rounded-bl-md bg-gray-900 p-1 text-[10px] text-gray-400">
+        <div>
+          <span className="text-[#e53e3e]">■</span> Limit: {formatBytes(limit)}
+        </div>
+        <div>
+          <span className="text-[#f6e05e]">■</span> Total: {formatBytes(total)}
+        </div>
+        <div>
+          <span className="text-[#4299e1]">■</span> Used: {formatBytes(history[history.length - 1])}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const StompMonitor = () => {
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
+  const [memoryUsage, setMemoryUsage] = useState<{ used: number; total: number; limit: number } | null>(null);
+  const [memoryHistory, setMemoryHistory] = useState<number[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -23,6 +77,17 @@ export const StompMonitor = () => {
       if (info) {
         setDebugInfo(info);
         setRefreshCount((prev) => prev + 1);
+      }
+
+      const performanceWithMemory = performance as PerformanceWithMemory;
+      if (performanceWithMemory.memory) {
+        const memory = performanceWithMemory.memory;
+        setMemoryUsage({
+          used: memory.usedJSHeapSize,
+          total: memory.totalJSHeapSize,
+          limit: memory.jsHeapSizeLimit,
+        });
+        setMemoryHistory((prev) => [...prev.slice(-MAX_HISTORY_POINTS + 1), memory.usedJSHeapSize]);
       }
     }, REFRESH_INTERVAL_MS);
 
@@ -75,7 +140,7 @@ export const StompMonitor = () => {
             {debugInfo.state.error && <Row label="에러" value={debugInfo.state.error.message} status="error" />}
           </Section>
 
-          <Section title="메모리 모니터링">
+          <Section title="STOMP 메모리 모니터링">
             <Row
               label="메시지 핸들러"
               value={`${debugInfo.messageHandlersSize}개`}
@@ -94,6 +159,12 @@ export const StompMonitor = () => {
               status={debugInfo.stateListenersSize > MEMORY_LEAK_THRESHOLD.STATE_LISTENERS ? "warning" : "normal"}
             />
           </Section>
+
+          {memoryUsage && (
+            <Section title="브라우저 메모리 (Chrome Only)">
+              <MemoryUsageGraph history={memoryHistory} limit={memoryUsage.limit} total={memoryUsage.total} />
+            </Section>
+          )}
 
           <Section title="활성 구독 목록">
             {debugInfo.messageHandlers.length === 0 ? (
