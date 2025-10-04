@@ -1,5 +1,5 @@
 import { ProfileCard } from "@/components/profileview";
-import type { Profile } from "@/components/profileview/types";
+import type { Participant } from "@/hooks/profileview";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
@@ -7,13 +7,13 @@ import type { ActivityComponentType } from "@stackflow/react/future";
 const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
   useStageNavigation();
   const handleBack = useHandleBackPage();
-  const manittoProfile: Profile = {
-    profileId: 1,
+  const manittoProfile: Participant = {
+    id: 1,
     name: "김민수",
     age: 25,
-    mbti: "ENFP",
+    mbtiType: "ENFP",
     interests: ["스포츠", "음악", "영화", "독서", "여행", "요리", "게임", "동물"],
-    intro:
+    introduction:
       "새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운",
   };
 
