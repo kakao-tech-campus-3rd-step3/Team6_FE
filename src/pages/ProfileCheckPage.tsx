@@ -1,6 +1,6 @@
 import { ProfileCheckComplete, ProfileCheckReadyButton, ProfileCheckStatus } from "@/components/profilecheck";
-import { useRoomParticipants } from "@/hooks/profileview";
 import { useStageNavigation } from "@/hooks";
+import { useRoomParticipants } from "@/hooks/profileview";
 import { useStompPublish } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
@@ -32,9 +32,13 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
     if (!roomId || !isHost) return;
 
     setLastEventType(roomId, "NEXT");
-    publish(`/app/room/${roomId}/change-stage`, {
+    const success = publish(`/app/room/${roomId}/change-stage`, {
       eventType: "NEXT",
     });
+    if (!success) {
+      // TODO: 실패 시 UI 피드백
+      console.error("퍼블리시 실패");
+    }
   };
 
   if (isLoading && participants.length === 0) {
