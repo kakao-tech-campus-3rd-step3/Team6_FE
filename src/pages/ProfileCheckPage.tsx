@@ -31,14 +31,15 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
   const handleStart = () => {
     if (!roomId || !isHost) return;
 
-    setLastEventType(roomId, "NEXT");
     const success = publish(`/app/room/${roomId}/change-stage`, {
       eventType: "NEXT",
     });
     if (!success) {
       // TODO: 실패 시 UI 피드백
       console.error("퍼블리시 실패");
+      return;
     }
+    setLastEventType(roomId, "NEXT");
   };
 
   if (isLoading && participants.length === 0) {
