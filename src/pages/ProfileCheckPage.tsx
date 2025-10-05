@@ -24,9 +24,9 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
     }
   }, [params?.participants]);
 
-  const { participants: fetchedParticipants, isLoading } = useRoomParticipants(participantsFromParams ? "" : roomId);
+  const { participants: fetchedParticipants, isLoading } = useRoomParticipants(roomId);
 
-  const participants = participantsFromParams || fetchedParticipants;
+  const participants = fetchedParticipants.length > 0 ? fetchedParticipants : participantsFromParams || [];
 
   const handleStart = () => {
     if (!roomId || !isHost) return;
@@ -37,7 +37,7 @@ const ProfileCheckPage: ActivityComponentType<"ProfileCheckPage"> = () => {
     });
   };
 
-  if ((!participantsFromParams && isLoading) || participants.length === 0) {
+  if (isLoading && participants.length === 0) {
     return (
       <AppScreen appBar={{ title: "프로필 소개" }}>
         <main className="bg-gradient-primary flex min-h-screen items-center justify-center p-4">
