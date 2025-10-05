@@ -10,7 +10,7 @@ export const useHandleBackPage = () => {
   const isHost = params?.isHost === "true";
 
   const handleBack = () => {
-    if (!isHost) return;
+    if (!isHost || !roomId) return;
 
     setLastEventType(roomId, "PREV");
     publish(`/app/room/${roomId}/change-stage`, {

@@ -14,7 +14,7 @@ export const MenuList = () => {
   const { publish } = useStompPublish();
 
   const handleChangeGame = (id: MenuId) => {
-    if (!isHost) return;
+    if (!isHost || !roomId) return;
     setLastEventType(roomId, "SELECT");
     publish(`/app/room/${roomId}/change-stage`, {
       eventType: "SELECT",
