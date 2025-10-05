@@ -24,7 +24,7 @@ const LandingPage: ActivityComponentType = () => {
     <AppScreen>
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center px-4 pt-20 pb-8">
         <header className="flex flex-col items-center">
-          <img src={logo} alt="아이스브레이킹 앱 로고" width={400} height={400} fetchPriority="high" />
+          <img src={logo} alt="아이스브레이킹 앱 로고" width={313} height={313} fetchPriority="high" />
           <h1 className="text-half pb-10 text-center text-xl font-semibold">
             처음 만나는 사람들과 <br />
             어색함을 빠르게 풀어보세요
