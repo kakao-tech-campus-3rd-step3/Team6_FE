@@ -9,3 +9,6 @@ export interface StompState {
 export type StateListener = (state: StompState) => void;
 
 export type Unsubscribe = () => void;
+
+export type PushFunction = (activity: string, params: Record<string, string>) => void;
+export type ReplaceFunction = (activity: string, params: Record<string, string>) => void;
