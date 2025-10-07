@@ -9,7 +9,7 @@ class StageNavigator {
   private unsubscribeStomp: (() => void) | null = null;
   private currentRoomId: string | null = null;
   private lastEventTypeMap = new Map<string, string>();
-  private subscriberCount = 0;
+  private subscribers = new Set<string>();
 
   private push: PushFunction | null = null;
   private replace: ReplaceFunction | null = null;
@@ -37,14 +37,14 @@ class StageNavigator {
     this.lastEventTypeMap.set(roomId, eventType);
   }
 
-  public attach(roomId: string) {
-    this.subscriberCount++;
+  public attach(roomId: string, subscriberId: string) {
+    this.subscribers.add(subscriberId);
     this.subscribeToRoom(roomId);
   }
 
-  public detach() {
-    this.subscriberCount--;
-    if (this.subscriberCount <= 0) {
+  public detach(subscriberId: string) {
+    this.subscribers.delete(subscriberId);
+    if (this.subscribers.size === 0) {
       this.unsubscribeFromRoom();
     }
   }
