@@ -23,3 +23,11 @@ export interface DebugInfo {
     error: StompError | null;
   };
 }
+
+export interface PerformanceWithMemory extends Performance {
+  memory?: {
+    jsHeapSizeLimit: number;
+    totalJSHeapSize: number;
+    usedJSHeapSize: number;
+  };
+}

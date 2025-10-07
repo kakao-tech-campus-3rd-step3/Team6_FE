@@ -1,23 +1,29 @@
 import { Button } from "@/components/common";
 import { AuthGuard } from "@/components/guards/AuthGuard";
 import { WaitingMessage, WaitingRoomCode, WaitingRoomParticipants, WaitingRoomQRCode } from "@/components/waitingroom";
+import { useStageNavigation } from "@/hooks";
+import { useStompPublish } from "@/hooks/stomp";
+import { setLastEventType } from "@/hooks/useStageNavigation";
 import { useWaitingRoomData } from "@/hooks/waitingroom";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
-import { useActivity, useFlow } from "@stackflow/react/future";
+import { useActivity } from "@stackflow/react/future";
 
 const WaitingRoomContent = () => {
-  const { push } = useFlow();
   const { params } = useActivity();
 
   const roomIdParams = params?.roomId;
   const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
   const isHost = params?.isHost === "true";
 
+  useStageNavigation();
+
   const { participants, maxParticipants, isConnected } = useWaitingRoomData({
     roomId,
     isHost,
   });
+
+  const { publish } = useStompPublish();
 
   if (!roomId) {
     return (
@@ -28,7 +34,13 @@ const WaitingRoomContent = () => {
   }
 
   const handleStartGame = () => {
-    push("ProfileViewPage", { title: "프로필 소개" });
+    if (!roomId) return;
+
+    setLastEventType(roomId, "SELECT");
+    publish(`/app/room/${roomId}/change-stage`, {
+      eventType: "SELECT",
+      stage: "PROFILE_VIEW_STAGE",
+    });
   };
 
   return (
