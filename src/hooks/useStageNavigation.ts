@@ -21,9 +21,9 @@ export const useStageNavigation = () => {
   }, [push, replace, isHost]);
 
   useEffect(() => {
-    if (roomId && isConnected) {
-      stageNavigator.attach(roomId);
-    }
+    if (!roomId && isConnected) return;
+
+    stageNavigator.attach(roomId);
 
     return () => {
       stageNavigator.detach();
