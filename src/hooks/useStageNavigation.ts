@@ -1,6 +1,6 @@
 import { stageNavigator } from "@/services/stomp/StageNavigator";
 import { useActivity, useFlow } from "@stackflow/react/future";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 
 import { useStompConnection } from "./stomp";
 
@@ -10,10 +10,11 @@ export const setLastEventType = (roomId: string, eventType: string) => {
 
 export const useStageNavigation = () => {
   const { push, replace } = useFlow();
-  const { params } = useActivity();
+  const { params, isActive } = useActivity();
   const roomId = typeof params?.roomId === "string" ? params.roomId : "";
   const isHost = params?.isHost === "true";
   const { isConnected } = useStompConnection();
+  const subscriberId = useId();
 
   useEffect(() => {
     stageNavigator.setFlowActions(push, replace);
@@ -21,12 +22,12 @@ export const useStageNavigation = () => {
   }, [push, replace, isHost]);
 
   useEffect(() => {
-    if (!roomId && isConnected) return;
+    if (!roomId || !isConnected || !isActive) return;
 
-    stageNavigator.attach(roomId);
+    stageNavigator.attach(roomId, subscriberId);
 
     return () => {
-      stageNavigator.detach();
+      stageNavigator.detach(subscriberId);
     };
-  }, [roomId, isConnected]);
+  }, [roomId, isConnected, isActive, subscriberId]);
 };
