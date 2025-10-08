@@ -1,3 +1,4 @@
+import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import { stompService } from "@/services/stomp/StompService";
 import type { PushFunction, ReplaceFunction } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
@@ -64,7 +65,16 @@ class StageNavigator {
     this.currentRoomId = roomId;
     const destination = `/topic/room-stage/${roomId}`;
 
-    this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+    try {
+      this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+    } catch (error) {
+      const stompError = StompErrorFactory.fromSubscriptionError(destination, error);
+      console.error(stompError.message, {
+        code: stompError.code,
+        metadata: stompError.metadata,
+      });
+      throw stompError;
+    }
   }
 
   private unsubscribeFromRoom() {
@@ -97,7 +107,11 @@ class StageNavigator {
         }
       }
     } catch (error) {
-      console.error("스테이지 변경 메시지 파싱 오류:", error);
+      const stompError = StompErrorFactory.fromMessageParseError(error, message.body);
+      console.error(stompError.message, {
+        code: stompError.code,
+        metadata: stompError.metadata,
+      });
     }
   };
 }
