@@ -2,7 +2,6 @@ import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import type { StateListener, StompState, Unsubscribe } from "@/services/stomp/types";
 import { useAuthStore } from "@/store/authStore";
 import { Client, type IFrame, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 
 class StompService {
   private static instance: StompService;
@@ -58,10 +57,7 @@ class StompService {
     }
 
     this.client = new Client({
-      webSocketFactory: () => {
-        const httpUrl = brokerURL.replace("ws://", "http://").replace("wss://", "https://");
-        return new SockJS(httpUrl);
-      },
+      brokerURL,
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
