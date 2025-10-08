@@ -109,4 +109,34 @@ export class StompErrorFactory {
   static notConnected(): StompError {
     return this.create("STOMP_NOT_CONNECTED");
   }
+
+  static fromBackendErrorResponse(response: unknown): StompError {
+    try {
+      const errorResponse = response as {
+        status?: string;
+        error?: {
+          code?: string;
+          message?: string;
+        };
+      };
+
+      if (errorResponse.status === "ERROR" && errorResponse.error?.code) {
+        const code = errorResponse.error.code as StompErrorCode;
+        const message = errorResponse.error.message;
+
+        return this.create(code, message, {
+          backendError: errorResponse.error,
+        });
+      }
+
+      return this.create("STOMP_UNKNOWN_ERROR", "알 수 없는 서버 에러", {
+        rawResponse: response,
+      });
+    } catch (error) {
+      return this.create("STOMP_UNKNOWN_ERROR", "에러 응답 파싱 실패", {
+        rawResponse: response,
+        parseError: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 }
