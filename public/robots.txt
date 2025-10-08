@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /profile
+
+Disallow: /profile-check
+Disallow: /profile-view
+Disallow: /create-room
+Disallow: /menu
+Disallow: /manitto
+Disallow: /random-roulette
+Disallow: /ending
+Disallow: /topic-recommend
+
+Sitemap: https://www.icebreak.click/sitemap.xml
