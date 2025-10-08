@@ -77,7 +77,7 @@ jobs:
         run: pnpm run build
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_STOMP_URL: ${{ secrets.VITE_STOMP_URL }}
+          VITE_BROKER_URL: ${{ secrets.VITE_BROKER_URL }}
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
