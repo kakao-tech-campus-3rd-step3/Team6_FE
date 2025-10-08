@@ -1,3 +1,4 @@
+import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import { stompService } from "@/services/stomp/StompService";
 import type { PushFunction, ReplaceFunction } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
@@ -9,7 +10,7 @@ class StageNavigator {
   private unsubscribeStomp: (() => void) | null = null;
   private currentRoomId: string | null = null;
   private lastEventTypeMap = new Map<string, string>();
-  private subscriberCount = 0;
+  private subscribers = new Set<string>();
 
   private push: PushFunction | null = null;
   private replace: ReplaceFunction | null = null;
@@ -37,14 +38,14 @@ class StageNavigator {
     this.lastEventTypeMap.set(roomId, eventType);
   }
 
-  public attach(roomId: string) {
-    this.subscriberCount++;
+  public attach(roomId: string, subscriberId: string) {
+    this.subscribers.add(subscriberId);
     this.subscribeToRoom(roomId);
   }
 
-  public detach() {
-    this.subscriberCount--;
-    if (this.subscriberCount <= 0) {
+  public detach(subscriberId: string) {
+    this.subscribers.delete(subscriberId);
+    if (this.subscribers.size === 0) {
       this.unsubscribeFromRoom();
     }
   }
@@ -64,7 +65,16 @@ class StageNavigator {
     this.currentRoomId = roomId;
     const destination = `/topic/room-stage/${roomId}`;
 
-    this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+    try {
+      this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+    } catch (error) {
+      const stompError = StompErrorFactory.fromSubscriptionError(destination, error);
+      console.error(stompError.message, {
+        code: stompError.code,
+        metadata: stompError.metadata,
+      });
+      throw stompError;
+    }
   }
 
   private unsubscribeFromRoom() {
@@ -97,7 +107,11 @@ class StageNavigator {
         }
       }
     } catch (error) {
-      console.error("스테이지 변경 메시지 파싱 오류:", error);
+      const stompError = StompErrorFactory.fromMessageParseError(error, message.body);
+      console.error(stompError.message, {
+        code: stompError.code,
+        metadata: stompError.metadata,
+      });
     }
   };
 }

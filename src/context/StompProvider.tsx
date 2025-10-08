@@ -1,5 +1,6 @@
 import { useStompSubscription } from "@/hooks/stomp";
 import { stompService } from "@/services/stomp/StompService";
+import { handleStompError } from "@/utils/stomp/handleStompError";
 import { type ReactNode, useEffect } from "react";
 
 export interface StompProviderProps {
@@ -18,15 +19,7 @@ export const StompProvider = ({ brokerURL, children, token }: StompProviderProps
     };
   }, [brokerURL, token]);
 
-  const handleGlobalError = () => {
-    try {
-      // TODO : 에러를 토스트같은 UI로 표시해주기
-    } catch {
-      //
-    }
-  };
-
-  useStompSubscription("/user/queue/errors", handleGlobalError);
+  useStompSubscription("/user/queue/errors", handleStompError);
 
   return <>{children}</>;
 };
