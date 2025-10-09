@@ -10,6 +10,13 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
+      include: [
+        "src/services/stomp/**",
+        "src/hooks/stomp/**",
+        "src/errors/stomp-*.ts",
+        "src/utils/stomp/**",
+        "src/constants/stomp-*.ts",
+      ],
     },
   },
   resolve: {

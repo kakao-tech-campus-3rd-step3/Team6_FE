@@ -24,5 +24,10 @@ dist-ssr
 *.sw?
 .env.*
 .env
-
+coverage
 node_modules
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
