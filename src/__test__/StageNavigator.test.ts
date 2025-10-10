@@ -323,8 +323,12 @@ describe("StageNavigator", () => {
     });
 
     it("currentRoomId가 없으면 네비게이션하지 않아야 한다", () => {
-      const handleMessage = vi.mocked(stompService.subscribe).mock.calls[0]?.[1] || vi.fn();
+      const roomId = "room-123";
+      stageNavigator.attach(roomId, "subscriber-1");
 
+      const handleMessage = vi.mocked(stompService.subscribe).mock.calls[0]?.[1] || vi.fn();
+      const internal = stageNavigator as unknown as StageNavigatorTestType;
+      internal.currentRoomId = null;
       const message = {
         body: JSON.stringify({
           data: { stage: "PROFILE_CHECK" },
