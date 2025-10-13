@@ -1,25 +1,26 @@
+import type { MenuId } from "@/components/menuselect";
 import { menu } from "@/constants/menu";
-import { useFlow } from "@stackflow/react/future";
+import { useStompPublish } from "@/hooks/stomp";
+import { setLastEventType } from "@/hooks/useStageNavigation";
+import { useActivity } from "@stackflow/react/future";
 
 import { MenuItem } from "./MenuItem";
 
-type MenuId = (typeof menu)[number]["id"];
-
-const ACTIVITY_BY_MENU = {
-  random: "RandomRoulettePage",
-  topic: "TopicPage",
-  manitto: "ManittoPage",
-  end: "EndingPage",
-} as const satisfies Record<MenuId, string>;
-
 export const MenuList = () => {
-  const { push } = useFlow();
+  const { params } = useActivity();
+  const roomId = typeof params?.roomId === "string" ? params.roomId : "";
+  const isHost = params?.isHost === "true";
 
-  const handleMenuClick = (id: MenuId) => {
-    const activityName = ACTIVITY_BY_MENU[id];
-    push(activityName, {});
+  const { publish } = useStompPublish();
+
+  const handleChangeGame = (id: MenuId) => {
+    if (!isHost || !roomId) return;
+    setLastEventType(roomId, "SELECT");
+    publish(`/app/room/${roomId}/change-stage`, {
+      eventType: "SELECT",
+      stage: id,
+    });
   };
-
   return (
     <section className="space-y-4">
       <fieldset>
@@ -30,7 +31,7 @@ export const MenuList = () => {
               variant={m.id}
               title={m.title}
               description={m.description}
-              onClick={() => handleMenuClick(m.id)}
+              onClick={() => handleChangeGame(m.id)}
             />
           ))}
         </div>

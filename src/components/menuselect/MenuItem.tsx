@@ -1,29 +1,21 @@
+import type { MenuItemProps, Variant } from "@/components/menuselect/types";
 import { cn } from "@/utils/cn";
 import type { LucideIcon } from "lucide-react";
-import { CircleHelp, Lightbulb, Users, RotateCcw, ChevronRight } from "lucide-react";
-
-type Variant = "random" | "topic" | "manitto" | "end";
+import { ChevronRight, CircleHelp, Lightbulb, RotateCcw, Users } from "lucide-react";
 
 const iconMap: Record<Variant, LucideIcon> = {
-  random: CircleHelp,
-  topic: Lightbulb,
-  manitto: Users,
-  end: RotateCcw,
+  RANDOM_ROULETTE_STAGE: CircleHelp,
+  TOPIC_RECOMMEND_STAGE: Lightbulb,
+  MANITTO_STAGE: Users,
+  ENDING_STAGE: RotateCcw,
 };
 
-interface MenuItemProps {
-  variant: Variant;
-  title: string;
-  description: string;
-  onClick: () => void;
-}
-
-const cardStyles = { 
-  base: "flex h-24 w-full cursor-pointer items-center rounded-2xl shadow-lg bg-white", 
+const cardStyles = {
+  base: "flex h-24 w-full cursor-pointer items-center rounded-2xl shadow-lg bg-white",
 };
 
-const checkStyles = { 
-  base: "flex h-11 w-11 items-center justify-center rounded-full bg-primary", 
+const checkStyles = {
+  base: "flex h-11 w-11 items-center justify-center rounded-full bg-primary",
 };
 
 export const MenuItem = ({ variant, title, description, onClick }: MenuItemProps) => {
@@ -33,16 +25,16 @@ export const MenuItem = ({ variant, title, description, onClick }: MenuItemProps
     <button type="button" className={cn(cardStyles.base)} onClick={onClick}>
       <div className="flex w-1/6 items-center justify-center pl-4">
         <div className={cn(checkStyles.base)}>
-          <Icon size={22} className="text-white"/>
+          <Icon size={22} className="text-white" />
         </div>
       </div>
 
-      <div className="w-5/6 text-left pl-4">
+      <div className="w-5/6 pl-4 text-left">
         <p className="text-xl font-semibold">{title}</p>
         <p className="text-gray-500">{description}</p>
       </div>
 
-      <ChevronRight className="h-5 w-5 text-gray-300 mr-4" aria-hidden />
+      <ChevronRight className="mr-4 h-5 w-5 text-gray-300" aria-hidden />
     </button>
   );
 };

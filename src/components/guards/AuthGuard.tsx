@@ -8,7 +8,7 @@ interface AuthGuardProps {
 }
 
 export const AuthGuard = ({ children, redirectTo = "ProfilePage" }: AuthGuardProps) => {
-  const { push } = useFlow();
+  const { replace } = useFlow();
   const { params } = useActivity();
   const token = useAuthStore((state) => state.token);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -23,10 +23,10 @@ export const AuthGuard = ({ children, redirectTo = "ProfilePage" }: AuthGuardPro
       setIsRedirecting(true);
 
       requestAnimationFrame(() => {
-        push(redirectTo, { roomId: params.roomId });
+        replace(redirectTo, { roomId: params.roomId });
       });
     }
-  }, [token, params?.roomId, push, redirectTo, isRedirecting]);
+  }, [token, params?.roomId, replace, redirectTo, isRedirecting]);
 
   if (!token || isRedirecting) {
     return null;

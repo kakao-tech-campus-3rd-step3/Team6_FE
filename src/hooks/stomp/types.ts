@@ -1,10 +1,9 @@
-import type { Client } from "@stomp/stompjs";
+import type { StompError } from "@/errors/stomp-errors";
 
 export interface StompConnectionReturn {
-  client: Client | null;
   isConnected: boolean;
   isConnecting: boolean;
-  error: string | null;
+  error: StompError | null;
 }
 
 export interface StompPublishOptions {
@@ -15,16 +14,11 @@ export interface StompPublishOptions {
 export interface StompPublishReturn {
   publish: (destination: string, body: unknown, options?: StompPublishOptions) => Promise<boolean>;
   isConnected: boolean;
-  error: string | null;
+  error: StompError | null;
 }
 
 export interface StompSubscriptionOptions {
-  id?: string;
-  ack?: "client-individual" | "client" | "auto";
   headers?: Record<string, string>;
 }
 
-export interface StompSubscriptionReturn {
-  isSubscribed: boolean;
-  error: string | null;
-}
+export type StompSubscriptionReturn = void;

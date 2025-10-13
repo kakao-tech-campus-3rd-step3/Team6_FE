@@ -1,23 +1,29 @@
 import { Button } from "@/components/common";
 import { AuthGuard } from "@/components/guards/AuthGuard";
 import { WaitingMessage, WaitingRoomCode, WaitingRoomParticipants, WaitingRoomQRCode } from "@/components/waitingroom";
+import { useStageNavigation } from "@/hooks";
+import { useStompPublish } from "@/hooks/stomp";
+import { setLastEventType } from "@/hooks/useStageNavigation";
 import { useWaitingRoomData } from "@/hooks/waitingroom";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
-import { useActivity, useFlow } from "@stackflow/react/future";
+import { useActivity } from "@stackflow/react/future";
 
 const WaitingRoomContent = () => {
-  const { push } = useFlow();
   const { params } = useActivity();
 
   const roomIdParams = params?.roomId;
   const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
   const isHost = params?.isHost === "true";
 
-  const { participants, maxParticipants, isConnected, roomSubscribed } = useWaitingRoomData({
+  useStageNavigation();
+
+  const { participants, maxParticipants, isConnected } = useWaitingRoomData({
     roomId,
     isHost,
   });
+
+  const { publish } = useStompPublish();
 
   if (!roomId) {
     return (
@@ -28,12 +34,18 @@ const WaitingRoomContent = () => {
   }
 
   const handleStartGame = () => {
-    push("ProfileViewPage", { title: "프로필 소개" });
+    if (!roomId) return;
+
+    setLastEventType(roomId, "SELECT");
+    publish(`/app/room/${roomId}/change-stage`, {
+      eventType: "SELECT",
+      stage: "PROFILE_VIEW_STAGE",
+    });
   };
 
   return (
     <AppScreen appBar={{ title: "대기실" }}>
-      <main className="bg-gradient-primary flex flex-col items-center space-y-4 p-4 pb-8">
+      <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 p-4 pb-8">
         <WaitingRoomCode roomId={roomId} />
         <WaitingMessage />
         <WaitingRoomQRCode roomId={roomId} />
@@ -48,14 +60,7 @@ const WaitingRoomContent = () => {
         {!isConnected && (
           <div className="flex items-center justify-center space-x-2 text-center text-sm text-white/80">
             <div className="h-2 w-2 animate-pulse rounded-full bg-yellow-400" />
-            <span>서버 연결 중...</span>
-          </div>
-        )}
-
-        {isConnected && !roomSubscribed && (
-          <div className="flex items-center justify-center space-x-2 text-center text-sm text-white/80">
-            <div className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
-            <span>방 정보 동기화 중...</span>
+            <span>서버에 연결하고 방 정보를 가져오는 중...</span>
           </div>
         )}
       </main>

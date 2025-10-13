@@ -46,12 +46,11 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icon-192x192.png", "icon-512x512.png"],
       manifest: {
         id: "/",
         name: "얼음땡",
         short_name: "Icebreaking",
-        description: "아이스브레이킹 얼음땡",
+        description: "얼음땡과 함께 간편하면서도 빠르게 아이스브레이킹을 시작하세요",
         start_url: "/",
         scope: "/",
         lang: "ko-KR",
@@ -84,7 +83,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        globPatterns: ["**/*.{js,css,html,ico,svg}", "**/assets/**/*.png"],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\./i,

@@ -11,7 +11,7 @@ const INTERVAL_DELAY = 1000;
 
 export const ConditionalStompProvider = ({ children }: ConditionalStompProviderProps) => {
   const token = useAuthStore((state) => state.token);
-  const brokerURL = import.meta.env.VITE_STOMP_URL || "ws://localhost:8080/ws";
+  const brokerURL = import.meta.env.VITE_BROKER_URL || "ws://localhost:8080/ws";
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
