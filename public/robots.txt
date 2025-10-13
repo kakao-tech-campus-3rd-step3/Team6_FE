@@ -5,6 +5,7 @@ Disallow: /profile
 Disallow: /profile-check
 Disallow: /profile-view
 Disallow: /create-room
+Disallow: /waiting-room
 Disallow: /menu
 Disallow: /manitto
 Disallow: /random-roulette
