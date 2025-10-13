@@ -98,10 +98,10 @@ class StageNavigator {
       if (stage) {
         const pageInfo = getPageFromStage(stage, this.currentRoomId, this.isHost);
         if (pageInfo) {
-          if (lastEventType === "PREV") {
-            this.replace(pageInfo.activity, pageInfo.params || {});
-          } else {
+          if (lastEventType === "NEXT") {
             this.push(pageInfo.activity, pageInfo.params || {});
+          } else {
+            this.replace(pageInfo.activity, pageInfo.params || {});
           }
           this.lastEventTypeMap.delete(this.currentRoomId);
         }
