@@ -24,9 +24,7 @@ const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
         title: "마니또",
         backButton: canGoBack
           ? {
-              onClick: () => {
-                handleBack();
-              },
+              onClick: handleBack,
             }
           : { render: () => null },
       }}

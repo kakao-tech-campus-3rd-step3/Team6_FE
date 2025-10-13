@@ -15,9 +15,7 @@ const TopicRecommendPage: ActivityComponentType<"TopicRecommendPage"> = () => {
         title: "주제 추천",
         backButton: canGoBack
           ? {
-              onClick: () => {
-                handleBack();
-              },
+              onClick: handleBack,
             }
           : { render: () => null },
       }}

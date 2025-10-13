@@ -13,9 +13,7 @@ const RandomRoulettePage: ActivityComponentType<"RandomRoulettePage"> = () => {
         title: "룰렛",
         backButton: canGoBack
           ? {
-              onClick: () => {
-                handleBack();
-              },
+              onClick: handleBack,
             }
           : { render: () => null },
       }}
