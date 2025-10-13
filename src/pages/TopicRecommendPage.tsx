@@ -8,16 +8,18 @@ import { useState } from "react";
 const TopicRecommendPage: ActivityComponentType<"TopicRecommendPage"> = () => {
   const [selected, setSelected] = useState<InterestType>(INTERESTS[0]);
   useStageNavigation();
-  const handleBack = useHandleBackPage();
+  const { handleBack, canGoBack } = useHandleBackPage();
   return (
     <AppScreen
       appBar={{
         title: "주제 추천",
-        backButton: {
-          onClick: () => {
-            handleBack();
-          },
-        },
+        backButton: canGoBack
+          ? {
+              onClick: () => {
+                handleBack();
+              },
+            }
+          : { render: () => null },
       }}
     >
       <main className="bg-gradient-primary space-y-4 p-4 pb-8">
