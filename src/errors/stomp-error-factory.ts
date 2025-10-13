@@ -1,4 +1,4 @@
-import { STOMP_ERROR_CONFIGS } from "@/constants/stomp-error-configs";
+import { STOMP_ERROR_CONFIGS } from "@/errors/configs";
 import { StompError } from "@/errors/stomp-errors";
 import type { StompErrorCode } from "@/errors/types";
 import type { IFrame } from "@stomp/stompjs";
