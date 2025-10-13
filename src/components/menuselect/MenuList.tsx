@@ -1,5 +1,5 @@
 import type { MenuId } from "@/components/menuselect";
-import { menu } from "@/constants/menu";
+import { MENU } from "@/constants";
 import { useStompPublish } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
 import { useActivity } from "@stackflow/react/future";
@@ -25,7 +25,7 @@ export const MenuList = () => {
     <section className="space-y-4">
       <fieldset>
         <div className="space-y-3" role="list">
-          {menu.map((m) => (
+          {MENU.map((m) => (
             <MenuItem
               key={m.id}
               variant={m.id}

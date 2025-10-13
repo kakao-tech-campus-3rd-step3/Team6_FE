@@ -5,17 +5,17 @@ import { type ActivityComponentType } from "@stackflow/react/future";
 
 const RandomRoulettePage: ActivityComponentType<"RandomRoulettePage"> = () => {
   useStageNavigation();
-  const handleBack = useHandleBackPage();
+  const { handleBack, canGoBack } = useHandleBackPage();
 
   return (
     <AppScreen
       appBar={{
         title: "룰렛",
-        backButton: {
-          onClick: () => {
-            handleBack();
-          },
-        },
+        backButton: canGoBack
+          ? {
+              onClick: handleBack,
+            }
+          : { render: () => null },
       }}
     >
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 overflow-x-hidden p-4 pb-8">
