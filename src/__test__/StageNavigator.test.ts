@@ -244,8 +244,8 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).toHaveBeenCalledWith("PROFILE_CHECK", roomId, false);
-      expect(mockReplace).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockPush).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
+      expect(mockReplace).not.toHaveBeenCalled();
     });
 
     it("lastEventType이 NEXT이면 push로 네비게이션해야 한다", () => {
