@@ -223,7 +223,7 @@ describe("StageNavigator", () => {
       stageNavigator.setFlowActions(mockPush, mockReplace);
     });
 
-    it("메시지를 받으면 getPageFromStage를 호출하고 replace로 네비게이션해야 한다", () => {
+    it("메시지를 받으면 getPageFromStage를 호출하고 push로 네비게이션해야 한다", () => {
       const roomId = "room-123";
       const mockPageInfo = {
         activity: "ProfileCheckPage" as const,
