@@ -1,65 +1,43 @@
-import type { InterestType } from "@/constants";
 import { useCreateUser } from "@/hooks/users";
+import { FormSchema, type FormSchemaType } from "@/model/FormSchema";
 import { useAuthStore } from "@/store/authStore";
-import type { MBTI } from "@/types/mbti";
+import { showToast } from "@/utils/toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useActivity, useFlow } from "@stackflow/react/future";
-import { useCallback, useState } from "react";
-
-interface ProfileFormData {
-  name: string;
-  phone: string;
-  age: number;
-  mbti: MBTI | "";
-  interests: InterestType[];
-  introduction: string;
-}
-
-const initialFormData: ProfileFormData = {
-  name: "",
-  phone: "",
-  age: 0,
-  mbti: "",
-  interests: [],
-  introduction: "",
-};
+import { useForm } from "react-hook-form";
 
 export const useProfileForm = () => {
-  const [formData, setFormData] = useState<ProfileFormData>(initialFormData);
+  const methods = useForm<FormSchemaType>({
+    resolver: zodResolver(FormSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      phone: "",
+      age: undefined,
+      mbti: undefined,
+      interests: [],
+      introduction: "",
+    },
+  });
+
   const { mutate: createUser, isPending, error } = useCreateUser();
   const setAuth = useAuthStore((state) => state.setAuth);
   const { push } = useFlow();
   const { params } = useActivity();
 
-  const updateField = useCallback(<K extends keyof ProfileFormData>(key: K, value: ProfileFormData[K]) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
-  const isFormValid = () => {
-    return (
-      formData.name.trim() !== "" &&
-      formData.phone.trim() !== "" &&
-      formData.age > 0 &&
-      formData.mbti !== "" &&
-      formData.interests.length > 0 &&
-      formData.introduction.trim() !== ""
-    );
-  };
-
-  const handleSubmit = () => {
-    if (!isFormValid() || !formData.mbti) return;
-
+  const onSubmit = methods.handleSubmit((data) => {
     createUser(
       {
-        name: formData.name,
-        phone: formData.phone,
-        age: formData.age,
-        mbtiValue: formData.mbti,
-        interests: formData.interests,
-        introduction: formData.introduction,
+        name: data.name,
+        phone: data.phone,
+        age: data.age,
+        mbtiValue: data.mbti,
+        interests: data.interests,
+        introduction: data.introduction || "",
       },
       {
-        onSuccess: (data) => {
-          setAuth(data.token, data.userId);
+        onSuccess: (response) => {
+          setAuth(response.token, response.userId);
           // URL에서 roomId 확인 (QR코드/링크로 들어온 참여자인지 체크)
           const urlParams = new URLSearchParams(window.location.search);
           const queryRoomId = urlParams.get("roomId");
@@ -76,24 +54,17 @@ export const useProfileForm = () => {
             push("MenuSelectPage", {});
           }
         },
-        onError: (error) => {
-          console.error("프로필 생성 실패:", error);
-          // TODO: 에러 토스트를 할지 아니면 다른 방식을 쓸지
+        onError: (err) => {
+          showToast.error(err.message);
         },
       },
     );
-  };
-
-  const resetForm = () => {
-    setFormData(initialFormData);
-  };
+  });
 
   return {
-    formData,
-    updateField,
-    handleSubmit,
-    resetForm,
-    isFormValid: isFormValid(),
+    methods,
+    handleSubmit: onSubmit,
+    isFormValid: methods.formState.isValid,
     isPending,
     error,
   };
