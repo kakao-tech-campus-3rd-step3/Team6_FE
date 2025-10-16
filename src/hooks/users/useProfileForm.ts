@@ -33,7 +33,7 @@ export const useProfileForm = () => {
         age: data.age,
         mbtiValue: data.mbti,
         interests: data.interests,
-        introduction: data.introduction || "",
+        introduction: data.introduction,
       },
       {
         onSuccess: (response) => {
