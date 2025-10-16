@@ -26,12 +26,7 @@ export const WaitingRoomQRCode = ({ roomId }: WaitingRoomCodeProps) => {
       <h2 id="qr-title" className="sr-only">
         참여용 QR코드
       </h2>
-      <div
-        role="img"
-        aria-label={`QR코드: ${shareUrl}로 연결됩니다. 스캔하여 방에 참여하세요`}
-        className="focus:ring-primary rounded focus:ring-2 focus:outline-none"
-        tabIndex={0}
-      >
+      <div role="img" aria-label={`QR코드: ${shareUrl}로 연결됩니다. 스캔하여 방에 참여하세요`} className="rounded">
         <QRCode size={200} value={shareUrl} viewBox="0 0 256 256" />
       </div>
       {/* TODO: 개발 환경에서 QR코드 대신 링크 복사 기능 추가 고려 */}

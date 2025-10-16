@@ -22,9 +22,9 @@ export const QuestionItem = ({
   onClick,
 }: QuestionItemProps) => {
   return (
-    <button type="button" className={cn(cardStyles.base)} onClick={onClick}>
+    <button type="button" className={cn(cardStyles.base)} onClick={onClick} aria-label={`질문 ${index}: ${title}`}>
       <div className="flex w-1/6 items-center justify-center">
-        <div className={cn(checkStyles.base)}>
+        <div className={cn(checkStyles.base)} aria-hidden="true">
           {index}
         </div>
       </div>
