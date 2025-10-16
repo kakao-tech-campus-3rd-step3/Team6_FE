@@ -1,14 +1,22 @@
-import { Button } from "@/components/common";
+import { Button, ErrorMessage } from "@/components/common";
 import { INTERESTS, type InterestType } from "@/constants";
 import { useMultiSelection } from "@/hooks";
+import type { FormSchemaType } from "@/model/FormSchema";
+import { useFormContext } from "react-hook-form";
 
-interface ProfileInterestsProps {
-  interests: InterestType[];
-  onInterestsChange: (interests: InterestType[]) => void;
-}
+export const ProfileInterests = () => {
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext<FormSchemaType>();
+  const interests = watch("interests");
 
-export const ProfileInterests = ({ interests, onInterestsChange }: ProfileInterestsProps) => {
-  const { toggleSelection, isSelected } = useMultiSelection<InterestType>(interests, onInterestsChange);
+  const handleChange = (newInterests: InterestType[]) => {
+    setValue("interests", newInterests, { shouldValidate: true });
+  };
+
+  const { toggleSelection, isSelected } = useMultiSelection<InterestType>(interests, handleChange);
 
   return (
     <section className="space-y-4">
@@ -27,6 +35,7 @@ export const ProfileInterests = ({ interests, onInterestsChange }: ProfileIntere
             </Button>
           ))}
         </div>
+        {errors.interests && <ErrorMessage error={errors.interests.message} />}
       </fieldset>
     </section>
   );

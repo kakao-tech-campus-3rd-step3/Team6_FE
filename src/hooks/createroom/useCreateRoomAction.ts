@@ -1,10 +1,14 @@
-import type { CreateRoomActionReturn, CreateRoomFormData } from "@/hooks/createroom";
+import type { CreateRoomActionReturn } from "@/hooks/createroom";
+import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import { useFlow } from "@stackflow/react/future";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useState } from "react";
 
-export const useCreateRoomAction = (formData: CreateRoomFormData, isFormValid: boolean): CreateRoomActionReturn => {
+export const useCreateRoomAction = (
+  formData: Pick<CreateRoomFormSchemaType, "roomName" | "capacity">,
+  isFormValid: boolean,
+): CreateRoomActionReturn => {
   const { push } = useFlow();
   const { publish, isConnected } = useStompPublish();
   const [isCreating, setIsCreating] = useState(false);

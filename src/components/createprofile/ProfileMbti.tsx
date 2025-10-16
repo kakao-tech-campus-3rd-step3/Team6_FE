@@ -1,15 +1,23 @@
-import { Button } from "@/components/common";
+import { Button, ErrorMessage } from "@/components/common";
 import { mbtiPairs } from "@/constants";
 import { useMbti } from "@/hooks/users";
+import type { FormSchemaType } from "@/model/FormSchema";
 import type { MBTI } from "@/types/mbti";
+import { useFormContext } from "react-hook-form";
 
-interface ProfileMbtiProps {
-  mbti: MBTI | "";
-  onMbtiChange: (mbti: MBTI | "") => void;
-}
+export const ProfileMbti = () => {
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext<FormSchemaType>();
+  const mbti = watch("mbti");
 
-export const ProfileMbti = ({ mbti, onMbtiChange }: ProfileMbtiProps) => {
-  const { handleSelection, isSelected } = useMbti(mbti, onMbtiChange);
+  const handleChange = (newMbti: MBTI | "") => {
+    setValue("mbti", newMbti as MBTI, { shouldValidate: true });
+  };
+
+  const { handleSelection, isSelected } = useMbti(mbti || "", handleChange);
 
   return (
     <section className="space-y-4">
@@ -33,6 +41,7 @@ export const ProfileMbti = ({ mbti, onMbtiChange }: ProfileMbtiProps) => {
             </div>
           ))}
         </div>
+        {errors.mbti && <ErrorMessage error={errors.mbti.message} />}
       </fieldset>
     </section>
   );

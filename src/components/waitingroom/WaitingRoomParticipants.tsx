@@ -15,7 +15,7 @@ export const WaitingRoomParticipants = ({ participants, maxParticipants }: Waiti
         {joinedCount} / {maxParticipants}
       </div>
       <ProgressBar current={joinedCount} capacity={maxParticipants} />
-      <ul className="flex w-full flex-col gap-2" role="list">
+      <ul className="flex w-full flex-col gap-2">
         {participants.map((participant) => (
           <ParticipantItem key={participant.id} participant={participant} />
         ))}

@@ -26,20 +26,29 @@ const textStyles = {
 };
 
 export const OptionCard = ({ title, description, isSelected, onClick }: OptionCardProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
+      aria-label={`${title}: ${description}`}
       className={cn(cardStyles.base, isSelected ? cardStyles.selected : cardStyles.unselected)}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       role="radio"
       aria-checked={isSelected}
       tabIndex={0}
     >
-      <div className="flex w-1/6 items-center justify-center">
+      <div className="flex w-1/6 items-center justify-center" aria-hidden="true">
         <div className={cn(checkStyles.base, isSelected ? checkStyles.selected : checkStyles.unselected)}>
           {isSelected && <Check size={18} className="text-primary" />}
         </div>
       </div>
-      <div className="w-5/6">
+      <div className="w-5/6" aria-hidden="true">
         <p className={cn("text-lg font-semibold", isSelected ? textStyles.selected : textStyles.unselected)}>{title}</p>
         <p className={isSelected ? textStyles.selected : textStyles.unselected}>{description}</p>
       </div>
