@@ -8,7 +8,7 @@ export const CreateRoomFormSchema = z.object({
   capacity: z
     .number()
     .int()
-    .positive()
+    .positive({ message: "양수만 입력해주세요." })
     .min(MIN_PARTICIPANT, { message: `최소 ${MIN_PARTICIPANT}명 이상이어야 합니다.` })
     .max(MAX_PARTICIPANT, { message: `최대 ${MAX_PARTICIPANT}명 이하여야 합니다.` }),
   purpose: z.enum(purposeIds as [string, ...string[]], { message: "목적을 선택해주세요." }),
