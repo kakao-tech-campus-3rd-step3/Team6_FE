@@ -34,7 +34,7 @@ export const WaitingRoomQRCode = ({ roomId }: WaitingRoomCodeProps) => {
         aria-label="참여 링크를 클립보드에 복사"
         className="focus:ring-primary flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 focus:ring-2 focus:ring-offset-2 focus:outline-none"
       >
-        <Copy size={16} />
+        <Copy size={16} aria-hidden="true" />
         <span>링크 복사</span>
       </button>
     </section>
