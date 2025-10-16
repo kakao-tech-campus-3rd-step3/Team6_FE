@@ -1,13 +1,22 @@
 import { type PurposeId, ROOM_PURPOSE } from "@/constants";
+import { useFormContext } from "react-hook-form";
+import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
+import { ErrorMessage } from "@/components/common";
 
 import { OptionCard } from "./OptionCard";
 
-interface PurposeSelectionProps {
-  selectedPurpose: PurposeId | "";
-  onPurposeChange: (purpose: PurposeId) => void;
-}
+export const PurposeSelection = () => {
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext<CreateRoomFormSchemaType>();
+  const selectedPurpose = watch("purpose");
 
-export const PurposeSelection = ({ selectedPurpose, onPurposeChange }: PurposeSelectionProps) => {
+  const handlePurposeChange = (purpose: PurposeId) => {
+    setValue("purpose", purpose, { shouldValidate: true });
+  };
+
   return (
     <section className="space-y-4">
       <fieldset>
@@ -19,10 +28,11 @@ export const PurposeSelection = ({ selectedPurpose, onPurposeChange }: PurposeSe
               title={purpose.title}
               description={purpose.description}
               isSelected={selectedPurpose === purpose.id}
-              onClick={() => onPurposeChange(purpose.id)}
+              onClick={() => handlePurposeChange(purpose.id)}
             />
           ))}
         </div>
+        {errors.purpose && <ErrorMessage error={errors.purpose.message} />}
       </fieldset>
     </section>
   );

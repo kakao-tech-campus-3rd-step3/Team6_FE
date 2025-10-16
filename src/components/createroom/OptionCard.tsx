@@ -26,10 +26,19 @@ const textStyles = {
 };
 
 export const OptionCard = ({ title, description, isSelected, onClick }: OptionCardProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
+      aria-label="방 목적 선택"
       className={cn(cardStyles.base, isSelected ? cardStyles.selected : cardStyles.unselected)}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       role="radio"
       aria-checked={isSelected}
       tabIndex={0}
