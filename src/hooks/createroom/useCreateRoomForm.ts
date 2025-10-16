@@ -1,61 +1,21 @@
-import { MAX_PARTICIPANT, MIN_PARTICIPANT } from "@/constants";
-import { useSingleSelection } from "@/hooks";
-import type { CreateRoomFormData } from "@/hooks/createroom";
-import { useMemo, useState } from "react";
-
-const initialFormData: CreateRoomFormData = {
-  roomName: "",
-  capacity: MIN_PARTICIPANT,
-  purpose: "",
-};
+import { MIN_PARTICIPANT } from "@/constants";
+import { CreateRoomFormSchema, type CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 export const useCreateRoomForm = () => {
-  const [formData, setFormData] = useState<CreateRoomFormData>(initialFormData);
-  const {
-    selectItem: selectPurpose,
-    isSelected: isPurposeSelected,
-    selection: selectedPurpose,
-  } = useSingleSelection<CreateRoomFormData["purpose"]>();
-
-  const updateRoomName = (roomName: string) => {
-    setFormData((prev) => ({ ...prev, roomName }));
-  };
-
-  const updateCapacity = (capacity: number) => {
-    setFormData((prev) => {
-      const n = Number.isNaN(capacity) ? MIN_PARTICIPANT : capacity;
-      const clamped = Math.min(MAX_PARTICIPANT, Math.max(MIN_PARTICIPANT, n));
-      return { ...prev, capacity: clamped };
-    });
-  };
-
-  const updatePurpose = (purpose: CreateRoomFormData["purpose"]) => {
-    selectPurpose(purpose);
-  };
-
-  const finalFormData = useMemo(
-    () => ({
-      ...formData,
-      purpose: (selectedPurpose || "") as CreateRoomFormData["purpose"],
-    }),
-    [formData, selectedPurpose],
-  );
-
-  const isFormValid = useMemo(() => {
-    return (
-      finalFormData.roomName.trim() !== "" &&
-      finalFormData.capacity >= MIN_PARTICIPANT &&
-      finalFormData.capacity <= MAX_PARTICIPANT &&
-      finalFormData.purpose !== ""
-    );
-  }, [finalFormData]);
+  const methods = useForm<CreateRoomFormSchemaType>({
+    resolver: zodResolver(CreateRoomFormSchema),
+    mode: "onChange",
+    defaultValues: {
+      roomName: "",
+      capacity: MIN_PARTICIPANT,
+      purpose: undefined,
+    },
+  });
 
   return {
-    formData: finalFormData,
-    updateRoomName,
-    updateCapacity,
-    updatePurpose,
-    isPurposeSelected,
-    isFormValid,
+    methods,
+    isFormValid: methods.formState.isValid,
   };
 };
