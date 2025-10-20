@@ -2,22 +2,20 @@ import { CreateRoomAction, PurposeSelection, RoomInfoSection } from "@/component
 import { useCreateRoomForm } from "@/hooks/createroom";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react";
+import { FormProvider } from "react-hook-form";
 
 const CreateRoomPage: ActivityComponentType = () => {
-  const { formData, updateRoomName, updateCapacity, updatePurpose, isFormValid } = useCreateRoomForm();
+  const { methods, isFormValid } = useCreateRoomForm();
 
   return (
     <AppScreen appBar={{ title: "방 만들기" }}>
-      <main className="bg-gradient-primary min-h-screen space-y-4 p-4 pb-8">
-        <RoomInfoSection
-          roomName={formData.roomName}
-          capacity={formData.capacity}
-          onRoomNameChange={updateRoomName}
-          onCapacityChange={updateCapacity}
-        />
-        <PurposeSelection selectedPurpose={formData.purpose || ""} onPurposeChange={updatePurpose} />
-        <CreateRoomAction formData={formData} isFormValid={isFormValid} />
-      </main>
+      <FormProvider {...methods}>
+        <main className="bg-gradient-primary min-h-screen space-y-4 p-4 pb-8">
+          <RoomInfoSection />
+          <PurposeSelection />
+          <CreateRoomAction isFormValid={isFormValid} />
+        </main>
+      </FormProvider>
     </AppScreen>
   );
 };

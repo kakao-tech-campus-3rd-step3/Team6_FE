@@ -1,6 +1,6 @@
 import { stageNavigator } from "@/services/stomp/StageNavigator";
 import { useActivity, useFlow } from "@stackflow/react/future";
-import { useEffect, useId } from "react";
+import { useEffect } from "react";
 
 import { useStompConnection } from "./stomp";
 
@@ -10,11 +10,11 @@ export const setLastEventType = (roomId: string, eventType: string) => {
 
 export const useStageNavigation = () => {
   const { push, replace } = useFlow();
-  const { params, isActive } = useActivity();
+  const { params, isActive, name } = useActivity();
   const roomId = typeof params?.roomId === "string" ? params.roomId : "";
   const isHost = params?.isHost === "true";
   const { isConnected } = useStompConnection();
-  const subscriberId = useId();
+  const subscriberId = name;
 
   useEffect(() => {
     stageNavigator.setFlowActions(push, replace);

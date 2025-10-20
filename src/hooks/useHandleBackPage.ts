@@ -9,8 +9,10 @@ export const useHandleBackPage = () => {
   const roomId = typeof params?.roomId === "string" ? params.roomId : "";
   const isHost = params?.isHost === "true";
 
+  const canGoBack = isHost && !!roomId;
+
   const handleBack = () => {
-    if (!isHost || !roomId) return;
+    if (!canGoBack) return;
 
     setLastEventType(roomId, "PREV");
     publish(`/app/room/${roomId}/change-stage`, {
@@ -18,5 +20,5 @@ export const useHandleBackPage = () => {
     });
   };
 
-  return handleBack;
+  return { handleBack, canGoBack };
 };

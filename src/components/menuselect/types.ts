@@ -1,4 +1,4 @@
-import type { menu } from "@/constants/menu";
+import type { MENU } from "@/constants";
 
 export type Variant = "RANDOM_ROULETTE_STAGE" | "TOPIC_RECOMMEND_STAGE" | "MANITTO_STAGE" | "ENDING_STAGE";
 
@@ -9,4 +9,4 @@ export interface MenuItemProps {
   onClick: () => void;
 }
 
-export type MenuId = (typeof menu)[number]["id"];
+export type MenuId = (typeof MENU)[number]["id"];

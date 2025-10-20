@@ -248,6 +248,34 @@ describe("StageNavigator", () => {
       expect(mockReplace).not.toHaveBeenCalled();
     });
 
+    it("lastEventType이 NEXT이면 push로 네비게이션해야 한다", () => {
+      const roomId = "room-123";
+      const mockPageInfo = {
+        activity: "ProfileCheckPage" as const,
+        params: { roomId, isHost: "false" },
+      };
+
+      vi.mocked(getPageFromStage).mockReturnValue(mockPageInfo);
+      stageNavigator.setLastEventType(roomId, "NEXT");
+
+      stageNavigator.attach(roomId, "subscriber-1");
+      const handleMessage = vi.mocked(stompService.subscribe).mock.calls[0][1];
+
+      const message = {
+        body: JSON.stringify({
+          data: { stage: "PROFILE_CHECK" },
+        }),
+      } as IMessage;
+
+      handleMessage(message);
+
+      expect(mockPush).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
+      expect(mockReplace).not.toHaveBeenCalled();
+
+      const internal = stageNavigator as unknown as StageNavigatorTestType;
+      expect(internal.lastEventTypeMap.has(roomId)).toBe(false);
+    });
+
     it("lastEventType이 PREV이면 replace로 네비게이션해야 한다", () => {
       const roomId = "room-123";
       const mockPageInfo = {

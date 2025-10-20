@@ -1,12 +1,13 @@
 import { ProfileCard } from "@/components/profileview";
-import type { Participant } from "@/hooks/profileview";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
+import type { Participant } from "@/hooks/profileview";
 import { AppScreen } from "@stackflow/plugin-basic-ui";
 import type { ActivityComponentType } from "@stackflow/react/future";
 
 const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
   useStageNavigation();
-  const handleBack = useHandleBackPage();
+  const { handleBack, canGoBack } = useHandleBackPage();
+
   const manittoProfile: Participant = {
     id: 1,
     name: "김민수",
@@ -21,11 +22,11 @@ const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
     <AppScreen
       appBar={{
         title: "마니또",
-        backButton: {
-          onClick: () => {
-            handleBack();
-          },
-        },
+        backButton: canGoBack
+          ? {
+              onClick: handleBack,
+            }
+          : { render: () => null },
       }}
     >
       <main className="bg-gradient-primary min-h-screen p-4">
