@@ -1,5 +1,7 @@
 import { Button } from "@/components/common";
+import { Overlay } from "@/components/common/Overlay";
 import { WinnerModal } from "@/components/randomroulette/WinnerModal";
+import type { Participant } from "@/hooks/profileview";
 import { useRouletteLogic } from "@/hooks/randomroulette/useRouletteLogic";
 import { useOverlay } from "@/hooks/useOverlay";
 import { RotateCwIcon } from "lucide-react";
@@ -8,22 +10,14 @@ import { useEffect } from "react";
 const FULL_CIRCLE_DEGREES = 360;
 const SECTION_CENTER_DIVISOR = 2;
 interface RouletteProps {
-  participants?: string[];
-  onResult?: (winner: string) => void;
+  participants: Participant[];
+  onResult?: (winner: Participant) => void;
 }
 
-export const Roulette = ({
-  participants = ["김김김", "이이이", "박박박", "최최최", "나나나"],
-  onResult,
-}: RouletteProps) => {
+export const Roulette = ({ participants, onResult }: RouletteProps) => {
   const { isSpinning, winner, wheelRef, spin, getConicGradient } = useRouletteLogic({ participants, onResult });
 
-  const { open, render } = useOverlay({
-    title: "🎉 룰렛 결과",
-    closable: true,
-    closeOnBackdrop: true,
-    closeOnEscape: true,
-  });
+  const { isOpen, open, close } = useOverlay();
 
   useEffect(() => {
     if (winner && !isSpinning) {
@@ -62,7 +56,7 @@ export const Roulette = ({
                     transform: `rotate(-${rotation}deg)`,
                   }}
                 >
-                  {participant}
+                  {participant.name}
                 </div>
               </div>
             );
@@ -79,7 +73,9 @@ export const Roulette = ({
         {isSpinning ? "돌리는 중..." : "룰렛 돌리기"}
       </Button>
 
-      {render(winner && <WinnerModal winner={winner} />)}
+      <Overlay isOpen={isOpen} onClose={close} title="룰렛 결과">
+        {winner && <WinnerModal winner={winner} />}
+      </Overlay>
     </section>
   );
 };
