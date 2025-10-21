@@ -1,4 +1,5 @@
 import { COLORS, COLOR_MAP } from "@/constants";
+import type { Participant } from "@/hooks/profileview";
 import { type RefObject, useRef, useState } from "react";
 
 const FULL_CIRCLE_DEGREES = 360;
@@ -6,13 +7,13 @@ const SECTION_CENTER_DIVISOR = 2;
 const FIXED_ROTATIONS = 10;
 
 interface UseRouletteLogicProps {
-  participants: string[];
-  onResult?: (winner: string) => void;
+  participants: Participant[];
+  onResult?: (winner: Participant) => void;
 }
 
 interface UseRouletteLogicReturn {
   isSpinning: boolean;
-  winner: string | null;
+  winner: Participant | null;
   wheelRef: RefObject<HTMLDivElement | null>;
   spin: () => void;
   getConicGradient: () => string;
@@ -20,7 +21,7 @@ interface UseRouletteLogicReturn {
 
 export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicProps): UseRouletteLogicReturn => {
   const [isSpinning, setIsSpinning] = useState(false);
-  const [winner, setWinner] = useState<string | null>(null);
+  const [winner, setWinner] = useState<Participant | null>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
 
   const getConicGradient = () => {

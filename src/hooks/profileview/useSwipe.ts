@@ -1,7 +1,9 @@
 import type { UseSwipeOptions } from "@/hooks/profileview";
 import { type TouchEvent, useRef } from "react";
 
-export const useSwipe = ({ onSwipeLeft, onSwipeRight, threshold = 50 }: UseSwipeOptions) => {
+const MIN_THRESHOLD = 50;
+
+export const useSwipe = ({ onSwipeLeft, onSwipeRight, threshold = MIN_THRESHOLD }: UseSwipeOptions) => {
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
 
