@@ -2,9 +2,10 @@ import { MAX_PARTICIPANT, MIN_PARTICIPANT, ROOM_PURPOSE } from "@/constants";
 import { z } from "zod";
 
 const purposeIds = ROOM_PURPOSE.map((p) => p.id);
+const MIN_LENGTH = 1;
 
 export const CreateRoomFormSchema = z.object({
-  roomName: z.string().trim().min(1, { message: "방 이름을 입력해주세요." }),
+  roomName: z.string().trim().min(MIN_LENGTH, { message: "방 이름을 입력해주세요." }),
   capacity: z
     .number()
     .int()
