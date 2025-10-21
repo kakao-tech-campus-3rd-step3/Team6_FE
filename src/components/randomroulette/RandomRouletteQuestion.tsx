@@ -10,7 +10,7 @@ export const RandomRouletteQuestion = ({ question }: RandomRouletteQuestionProps
 
   return (
     <section
-      className="animate-in slide-in-from-bottom p-4delay-300 mt-4 w-full rounded-xl bg-white duration-500"
+      className="animate-in slide-in-from-bottom mt-4 w-full rounded-xl bg-white p-4 delay-300 duration-500"
       aria-labelledby="question-title"
       role="complementary"
     >
