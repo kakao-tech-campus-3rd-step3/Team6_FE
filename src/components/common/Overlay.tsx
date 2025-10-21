@@ -26,13 +26,14 @@ export const Overlay = ({
 }: OverlayProps) => {
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const previousOverflowRef = useRef<string>("");
+  const focusTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof document === "undefined") return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!closable) return;
-      if (event.key === "Escape" && closeOnEscape) {
+      if (event.key === "Escape" && closable && closeOnEscape) {
         onClose();
       }
 
@@ -40,6 +41,14 @@ export const Overlay = ({
         const focusableElements = modalRef.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
+        const count = focusableElements.length;
+
+        if (count === 0) {
+          event.preventDefault();
+          modalRef.current.focus();
+          return;
+        }
+
         const firstElement = focusableElements[0] as HTMLElement;
         const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
@@ -55,14 +64,19 @@ export const Overlay = ({
 
     if (isOpen) {
       previousFocusRef.current = document.activeElement as HTMLElement;
+      previousOverflowRef.current = document.body.style.overflow;
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
 
-      setTimeout(() => {
+      focusTimeoutRef.current = window.setTimeout(() => {
         const firstElement = modalRef.current?.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         )?.[0] as HTMLElement;
-        firstElement?.focus();
+        if (firstElement) {
+          firstElement.focus();
+        } else {
+          modalRef.current?.focus();
+        }
       }, DELAY);
     } else {
       previousFocusRef.current?.focus();
@@ -70,7 +84,12 @@ export const Overlay = ({
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = previousOverflowRef.current;
+      if (focusTimeoutRef.current !== null) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+      previousFocusRef.current?.focus();
     };
   }, [isOpen, onClose, closable, closeOnEscape]);
 
