@@ -1,23 +1,13 @@
 import type { Participant } from "@/components/waitingroom";
-
-interface ServerParticipant {
-  id: number;
-  name: string;
-  role: "HOST" | "MEMBER";
-}
-
-export interface WaitingRoomState {
-  participants: Participant[];
-  maxParticipants: number;
-}
+import type { WaitingRoomState } from "@/hooks/waitingroom/types";
 
 export type WaitingRoomAction =
-  | { type: "ROOM_INFO_UPDATE"; payload: { participants: ServerParticipant[]; room: { capacity: number } } }
-  | { type: "PARTICIPANT_LIST"; payload: { participants: ServerParticipant[] } }
-  | { type: "PARTICIPANT_JOINED"; payload: { newParticipant: ServerParticipant[] } }
+  | { type: "ROOM_INFO_UPDATE"; payload: { participants: Participant[]; room: { capacity: number } } }
+  | { type: "PARTICIPANT_LIST"; payload: { participants: Participant[] } }
+  | { type: "PARTICIPANT_JOINED"; payload: { newParticipant: Participant } }
   | { type: "USER_LEFT"; payload: { userId: number } };
 
-const normalizeParticipant = (p: ServerParticipant): Participant => ({
+const normalizeParticipant = (p: Participant): Participant => ({
   id: p.id,
   name: p.name,
   role: p.role,
@@ -40,14 +30,16 @@ export const waitingRoomReducer = (state: WaitingRoomState, action: WaitingRoomA
       };
     }
     case "PARTICIPANT_JOINED": {
-      const newParticipants = action.payload.newParticipant.map(normalizeParticipant);
-      const merged = [...state.participants, ...newParticipants];
-      const uniqueParticipants = merged.filter(
-        (participant, index) => merged.findIndex((p) => p.id === participant.id) === index,
-      );
+      const newParticipant = normalizeParticipant(action.payload.newParticipant);
+
+      const exists = state.participants.some((p) => p.id === newParticipant.id);
+      if (exists) {
+        return state;
+      }
+
       return {
         ...state,
-        participants: uniqueParticipants,
+        participants: [...state.participants, newParticipant],
       };
     }
     case "USER_LEFT": {

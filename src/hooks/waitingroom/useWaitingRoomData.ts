@@ -1,13 +1,9 @@
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
+import type { UseWaitingRoomDataProps, WaitingRoomResponse } from "@/hooks/waitingroom/types";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useReducer } from "react";
 
 import { waitingRoomReducer } from "./waitingRoomReducer";
-
-interface UseWaitingRoomDataProps {
-  roomId: string;
-  isHost: boolean;
-}
 
 const SYNC_DELAY = 100;
 
@@ -20,10 +16,15 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
 
   const handleRoomMessage = useCallback((message: IMessage) => {
     try {
-      const data = JSON.parse(message.body);
-      const payload = data.data?.payload || data.payload || data;
+      const response = JSON.parse(message.body) as WaitingRoomResponse;
 
-      if (payload.room && Array.isArray(payload.participants)) {
+      if (response.success) {
+        return;
+      }
+
+      const { type, payload } = response.data;
+
+      if (payload.room && payload.participants) {
         dispatch({
           type: "ROOM_INFO_UPDATE",
           payload: { participants: payload.participants, room: payload.room },
@@ -31,28 +32,31 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
         return;
       }
 
-      if (payload.type === "PARTICIPANT_LIST" || payload.participants) {
-        dispatch({
-          type: "PARTICIPANT_LIST",
-          payload: { participants: payload.participants || [] },
-        });
-        return;
-      }
+      switch (type) {
+        case "PARTICIPANT_LIST":
+          dispatch({
+            type: "PARTICIPANT_LIST",
+            payload: { participants: payload.participants || [] },
+          });
+          break;
 
-      if (payload.type === "PARTICIPANT_JOINED" && payload.newParticipant) {
-        dispatch({
-          type: "PARTICIPANT_JOINED",
-          payload: { newParticipant: payload.newParticipant },
-        });
-        return;
-      }
+        case "PARTICIPANT_JOINED":
+          if (payload.newParticipant) {
+            dispatch({
+              type: "PARTICIPANT_JOINED",
+              payload: { newParticipant: payload.newParticipant },
+            });
+          }
+          break;
 
-      if (payload.type === "USER_LEFT" && payload.userId) {
-        dispatch({ type: "USER_LEFT", payload: { userId: payload.userId } });
-        return;
+        case "USER_LEFT":
+          if (payload.userId) {
+            dispatch({ type: "USER_LEFT", payload: { userId: payload.userId } });
+          }
+          break;
       }
-    } catch {
-      return;
+    } catch (error) {
+      console.error("대기방 메시지 파싱 실패:", error, message.body);
     }
   }, []);
 
