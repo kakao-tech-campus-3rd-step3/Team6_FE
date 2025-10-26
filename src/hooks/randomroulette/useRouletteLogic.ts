@@ -1,23 +1,11 @@
 import { COLORS, COLOR_MAP } from "@/constants";
 import type { Participant } from "@/hooks/profileview";
-import { type RefObject, useRef, useState } from "react";
+import type { UseRouletteLogicProps, UseRouletteLogicReturn } from "@/hooks/randomroulette/types";
+import { useCallback, useRef, useState } from "react";
 
 const FULL_CIRCLE_DEGREES = 360;
 const SECTION_CENTER_DIVISOR = 2;
 const FIXED_ROTATIONS = 10;
-
-interface UseRouletteLogicProps {
-  participants: Participant[];
-  onResult?: (winner: Participant) => void;
-}
-
-interface UseRouletteLogicReturn {
-  isSpinning: boolean;
-  winner: Participant | null;
-  wheelRef: RefObject<HTMLDivElement | null>;
-  spin: () => void;
-  getConicGradient: () => string;
-}
 
 export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicProps): UseRouletteLogicReturn => {
   const [isSpinning, setIsSpinning] = useState(false);
@@ -35,13 +23,16 @@ export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicPro
       .join(", ");
   };
 
-  const calculateSpinRotation = (winnerIndex: number) => {
-    const sectionAngle = FULL_CIRCLE_DEGREES / participants.length;
-    const targetAngle = sectionAngle * winnerIndex + sectionAngle / SECTION_CENTER_DIVISOR;
-    return FIXED_ROTATIONS * FULL_CIRCLE_DEGREES + targetAngle;
-  };
+  const calculateSpinRotation = useCallback(
+    (winnerIndex: number) => {
+      const sectionAngle = FULL_CIRCLE_DEGREES / participants.length;
+      const targetAngle = sectionAngle * winnerIndex + sectionAngle / SECTION_CENTER_DIVISOR;
+      return FIXED_ROTATIONS * FULL_CIRCLE_DEGREES + targetAngle;
+    },
+    [participants.length],
+  );
 
-  const animateWheel = (rotation: number) => {
+  const animateWheel = useCallback((rotation: number) => {
     if (!wheelRef.current) return;
 
     const fixedDuration = 3000;
@@ -56,25 +47,37 @@ export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicPro
     wheelRef.current.style.transform = `rotate(${rotation}deg)`;
 
     return fixedDuration;
-  };
+  }, []);
 
-  const spin = () => {
-    if (isSpinning || participants.length === 0) return;
+  const spin = useCallback(
+    (winnerName: string) => {
+      if (isSpinning || participants.length === 0) {
+        return;
+      }
 
-    setIsSpinning(true);
-    setWinner(null);
+      setIsSpinning(true);
+      setWinner(null);
 
-    const randomIndex = Math.floor(Math.random() * participants.length);
-    const selectedWinner = participants[randomIndex];
-    const rotation = calculateSpinRotation(randomIndex);
-    const duration = animateWheel(rotation);
+      const winnerIndex = participants.findIndex((p) => p.name === winnerName);
 
-    setTimeout(() => {
-      setIsSpinning(false);
-      setWinner(selectedWinner);
-      onResult?.(selectedWinner);
-    }, duration);
-  };
+      if (winnerIndex === -1) {
+        console.error("[Roulette] 당첨자를 찾을 수 없습니다:", winnerName);
+        setIsSpinning(false);
+        return;
+      }
+
+      const selectedWinner = participants[winnerIndex];
+      const rotation = calculateSpinRotation(winnerIndex);
+      const duration = animateWheel(rotation);
+
+      setTimeout(() => {
+        setIsSpinning(false);
+        setWinner(selectedWinner);
+        onResult?.(selectedWinner);
+      }, duration);
+    },
+    [isSpinning, participants, onResult, calculateSpinRotation, animateWheel],
+  );
 
   return {
     isSpinning,
