@@ -1,5 +1,4 @@
-import type { Participant } from "@/components/waitingroom";
-import type { WaitingRoomState } from "@/hooks/waitingroom/types";
+import type { Participant, WaitingRoomState } from "@/hooks/waitingroom/types";
 
 export type WaitingRoomAction =
   | { type: "ROOM_INFO_UPDATE"; payload: { participants: Participant[]; room: { capacity: number } } }
