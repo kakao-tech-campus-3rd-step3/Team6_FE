@@ -1,15 +1,16 @@
 import type { CreateRoomActionReturn } from "@/hooks/createroom";
-import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
+import type { WaitingRoomResponse } from "@/hooks/createroom/types";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
-import { useFlow } from "@stackflow/react/future";
+import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const useCreateRoomAction = (
   formData: Pick<CreateRoomFormSchemaType, "roomName" | "capacity">,
   isFormValid: boolean,
 ): CreateRoomActionReturn => {
-  const { push } = useFlow();
+  const navigate = useNavigate();
   const { publish, isConnected } = useStompPublish();
   const [isCreating, setIsCreating] = useState(false);
   const [createdRoomId, setCreatedRoomId] = useState<string | null>(null);
@@ -17,11 +18,11 @@ export const useCreateRoomAction = (
 
   const handleWaitingRoomMessage = useCallback((message: IMessage) => {
     try {
-      const data = JSON.parse(message.body);
+      const response = JSON.parse(message.body) as WaitingRoomResponse;
 
-      const newRoomId = data?.data?.roomId || data?.roomId;
+      const newRoomId = response.data?.roomId;
 
-      if (newRoomId && data.success) {
+      if (newRoomId && response.success) {
         setCreatedRoomId(newRoomId);
         setShouldSubscribe(false);
       } else {
@@ -38,15 +39,12 @@ export const useCreateRoomAction = (
 
   useEffect(() => {
     if (createdRoomId) {
-      push("WaitingRoomPage", {
-        roomId: createdRoomId,
-        isHost: "true",
-      });
+      navigate(`/waiting-room/${createdRoomId}?isHost=true`);
 
       setCreatedRoomId(null);
       setIsCreating(false);
     }
-  }, [createdRoomId, push]);
+  }, [createdRoomId, navigate]);
 
   const handleCreateRoom = useCallback(async () => {
     if (!isReady || isCreating || !isFormValid) {
@@ -64,7 +62,7 @@ export const useCreateRoomAction = (
       const success = await publish("/app/waiting-room/create", payload);
 
       if (success) {
-        console.log("방 생성 요청 전송됨");
+        //TODO
       } else {
         setIsCreating(false);
       }

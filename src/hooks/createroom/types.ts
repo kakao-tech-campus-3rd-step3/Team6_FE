@@ -11,3 +11,8 @@ export interface CreateRoomActionReturn {
   isReady: boolean;
   handleCreateRoom: () => Promise<void>;
 }
+
+interface WaitingRoomData {
+  roomId: string;
+}
+export type WaitingRoomResponse = BaseResponse<WaitingRoomData>;
