@@ -1,16 +1,50 @@
 import { ProfileCard } from "@/components/profileview";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
 import type { Participant } from "@/hooks/profileview";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import type { ActivityComponentType } from "@stackflow/react/future";
+import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
+import { PageLayout } from "@/layouts/PageLayout";
+import type { IMessage } from "@stomp/stompjs";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
+const SYNC_DELAY = 200;
+
+const ManittoPage = () => {
   useStageNavigation();
   const { handleBack, canGoBack } = useHandleBackPage();
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("roomId") || "";
+  const isHost = searchParams.get("isHost") === "true";
+  const { publish } = useStompPublish();
+  const [myManitto, setMyManitto] = useState<string>();
+
+  const handleManittoMessage = useCallback((message: IMessage) => {
+    try {
+      const response = JSON.parse(message.body) as BaseResponse<string>;
+      setMyManitto(response.data);
+    } catch {
+      console.error("실패");
+    }
+  }, []);
+
+  useStompSubscription("/user/queue/game-result", handleManittoMessage);
+
+  useEffect(() => {
+    if (!isHost || !roomId) return;
+
+    const timer = setTimeout(() => {
+      publish(`/app/room/${roomId}/start-game`, {
+        roomCode: roomId,
+        type: "MANITTO",
+      });
+    }, SYNC_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [isHost, roomId, publish]);
 
   const manittoProfile: Participant = {
     id: 1,
-    name: "김민수",
+    name: myManitto || "알 수 없음",
     age: 25,
     mbtiType: "ENFP",
     interests: ["스포츠", "음악", "영화", "독서", "여행", "요리", "게임", "동물"],
@@ -19,7 +53,7 @@ const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
   };
 
   return (
-    <AppScreen
+    <PageLayout
       appBar={{
         title: "마니또",
         backButton: canGoBack
@@ -38,7 +72,7 @@ const ManittoPage: ActivityComponentType<"ManittoPage"> = () => {
           <ProfileCard profile={manittoProfile} />
         </div>
       </main>
-    </AppScreen>
+    </PageLayout>
   );
 };
 
