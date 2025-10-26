@@ -1,17 +1,46 @@
 import type { MenuId } from "@/components/menuselect";
 import { MENU } from "@/constants";
-import { useStompPublish } from "@/hooks/stomp";
+import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
-import { useActivity } from "@stackflow/react/future";
+import type { IMessage } from "@stomp/stompjs";
+import { useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { MenuItem } from "./MenuItem";
 
+const SYNC_DELAY = 300;
 export const MenuList = () => {
-  const { params } = useActivity();
-  const roomId = typeof params?.roomId === "string" ? params.roomId : "";
-  const isHost = params?.isHost === "true";
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("roomId") || "";
+  const isHost = searchParams.get("isHost") === "true";
 
-  const { publish } = useStompPublish();
+  const { publish, isConnected } = useStompPublish();
+
+  const handleGameListMessage = useCallback((message: IMessage) => {
+    try {
+      const response = JSON.parse(message.body) as BaseResponse<string[]>;
+
+      if (response.success) {
+        //TODO : data랑 Menu 어떻게 섞을지
+      }
+    } catch (error) {
+      console.error("메시지 파싱 실패", error, message.body);
+    }
+  }, []);
+
+  useStompSubscription(isHost ? `/topic/game-list/${roomId}` : null, handleGameListMessage);
+
+  useEffect(() => {
+    if (!roomId || !isHost || !isConnected) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      publish(`/app/room/${roomId}/game-list`, {});
+    }, SYNC_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [roomId, isHost, isConnected, publish]);
 
   const handleChangeGame = (id: MenuId) => {
     if (!isHost || !roomId) return;
@@ -21,6 +50,7 @@ export const MenuList = () => {
       stage: id,
     });
   };
+
   return (
     <section className="space-y-4">
       <fieldset>
