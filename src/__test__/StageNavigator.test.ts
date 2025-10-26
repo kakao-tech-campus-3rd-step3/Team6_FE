@@ -1,7 +1,7 @@
 import type { StageNavigatorTestType } from "@/__test__/test-type";
 import { stageNavigator } from "@/services/stomp/StageNavigator";
 import { stompService } from "@/services/stomp/StompService";
-import type { PushFunction, ReplaceFunction } from "@/services/stomp/types";
+import type { NavigateFn } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
 import type { IMessage } from "@stomp/stompjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,8 +10,7 @@ vi.mock("@/services/stomp/StompService");
 vi.mock("@/utils/stage");
 
 describe("StageNavigator", () => {
-  let mockPush: PushFunction;
-  let mockReplace: ReplaceFunction;
+  let mockNavigate: NavigateFn;
   let mockUnsubscribe: () => void;
 
   beforeEach(() => {
@@ -22,12 +21,10 @@ describe("StageNavigator", () => {
     internal.currentRoomId = null;
     internal.lastEventTypeMap = new Map();
     internal.subscribers = new Set();
-    internal.push = null;
-    internal.replace = null;
+    internal.navigate = null;
     internal.isHost = false;
 
-    mockPush = vi.fn();
-    mockReplace = vi.fn();
+    mockNavigate = vi.fn();
     mockUnsubscribe = vi.fn();
   });
 
@@ -44,13 +41,12 @@ describe("StageNavigator", () => {
     });
   });
 
-  describe("setFlowActions", () => {
-    it("push와 replace 함수를 설정해야 한다", () => {
-      stageNavigator.setFlowActions(mockPush, mockReplace);
+  describe("setNavigate", () => {
+    it("navigate 함수를 설정해야 한다", () => {
+      stageNavigator.setNavigate(mockNavigate);
 
       const internal = stageNavigator as unknown as StageNavigatorTestType;
-      expect(internal.push).toBe(mockPush);
-      expect(internal.replace).toBe(mockReplace);
+      expect(internal.navigate).toBe(mockNavigate);
     });
   });
 
@@ -220,17 +216,14 @@ describe("StageNavigator", () => {
   describe("handleMessage", () => {
     beforeEach(() => {
       vi.mocked(stompService.subscribe).mockReturnValue(mockUnsubscribe);
-      stageNavigator.setFlowActions(mockPush, mockReplace);
+      stageNavigator.setNavigate(mockNavigate);
     });
 
-    it("메시지를 받으면 getPageFromStage를 호출하고 push로 네비게이션해야 한다", () => {
+    it("메시지를 받으면 getPageFromStage를 호출하고 navigate로 네비게이션해야 한다", () => {
       const roomId = "room-123";
-      const mockPageInfo = {
-        activity: "ProfileCheckPage" as const,
-        params: { roomId, isHost: "false" },
-      };
+      const mockPageUrl = "/profile-check?roomId=room-123&isHost=false";
 
-      vi.mocked(getPageFromStage).mockReturnValue(mockPageInfo);
+      vi.mocked(getPageFromStage).mockReturnValue(mockPageUrl);
 
       stageNavigator.attach(roomId, "subscriber-1");
       const handleMessage = vi.mocked(stompService.subscribe).mock.calls[0][1];
@@ -244,18 +237,14 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).toHaveBeenCalledWith("PROFILE_CHECK", roomId, false);
-      expect(mockPush).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
-      expect(mockReplace).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(mockPageUrl, { state: { direction: "forward" } });
     });
 
-    it("lastEventType이 NEXT이면 push로 네비게이션해야 한다", () => {
+    it("lastEventType이 NEXT이면 forward direction으로 네비게이션해야 한다", () => {
       const roomId = "room-123";
-      const mockPageInfo = {
-        activity: "ProfileCheckPage" as const,
-        params: { roomId, isHost: "false" },
-      };
+      const mockPageUrl = "/profile-check?roomId=room-123&isHost=false";
 
-      vi.mocked(getPageFromStage).mockReturnValue(mockPageInfo);
+      vi.mocked(getPageFromStage).mockReturnValue(mockPageUrl);
       stageNavigator.setLastEventType(roomId, "NEXT");
 
       stageNavigator.attach(roomId, "subscriber-1");
@@ -269,21 +258,17 @@ describe("StageNavigator", () => {
 
       handleMessage(message);
 
-      expect(mockPush).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
-      expect(mockReplace).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(mockPageUrl, { state: { direction: "forward" } });
 
       const internal = stageNavigator as unknown as StageNavigatorTestType;
       expect(internal.lastEventTypeMap.has(roomId)).toBe(false);
     });
 
-    it("lastEventType이 PREV이면 replace로 네비게이션해야 한다", () => {
+    it("lastEventType이 PREV이면 back direction으로 네비게이션해야 한다", () => {
       const roomId = "room-123";
-      const mockPageInfo = {
-        activity: "MenuSelectPage" as const,
-        params: { roomId, isHost: "false" },
-      };
+      const mockPageUrl = "/menu?roomId=room-123&isHost=false";
 
-      vi.mocked(getPageFromStage).mockReturnValue(mockPageInfo);
+      vi.mocked(getPageFromStage).mockReturnValue(mockPageUrl);
       stageNavigator.setLastEventType(roomId, "PREV");
 
       stageNavigator.attach(roomId, "subscriber-1");
@@ -297,8 +282,7 @@ describe("StageNavigator", () => {
 
       handleMessage(message);
 
-      expect(mockReplace).toHaveBeenCalledWith(mockPageInfo.activity, mockPageInfo.params);
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(mockPageUrl, { state: { direction: "back" } });
 
       const internal = stageNavigator as unknown as StageNavigatorTestType;
       expect(internal.lastEventTypeMap.has(roomId)).toBe(false);
@@ -306,13 +290,10 @@ describe("StageNavigator", () => {
 
     it("isHost가 true일 때 getPageFromStage에 올바른 파라미터를 전달해야 한다", () => {
       const roomId = "room-123";
-      const mockPageInfo = {
-        activity: "WaitingRoomPage" as const,
-        params: { roomId, isHost: "true" },
-      };
+      const mockPageUrl = "/waiting-room?roomId=room-123&isHost=true";
 
       stageNavigator.setIsHost(true);
-      vi.mocked(getPageFromStage).mockReturnValue(mockPageInfo);
+      vi.mocked(getPageFromStage).mockReturnValue(mockPageUrl);
 
       stageNavigator.attach(roomId, "subscriber-1");
       const handleMessage = vi.mocked(stompService.subscribe).mock.calls[0][1];
@@ -328,10 +309,9 @@ describe("StageNavigator", () => {
       expect(getPageFromStage).toHaveBeenCalledWith("WAITING", roomId, true);
     });
 
-    it("push/replace 함수가 설정되지 않았으면 네비게이션하지 않아야 한다", () => {
+    it("navigate 함수가 설정되지 않았으면 네비게이션하지 않아야 한다", () => {
       const internal = stageNavigator as unknown as StageNavigatorTestType;
-      internal.push = null;
-      internal.replace = null;
+      internal.navigate = null;
 
       const roomId = "room-123";
       stageNavigator.attach(roomId, "subscriber-1");
@@ -346,8 +326,7 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
-      expect(mockReplace).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("currentRoomId가 없으면 네비게이션하지 않아야 한다", () => {
@@ -366,7 +345,7 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("getPageFromStage가 null을 반환하면 네비게이션하지 않아야 한다", () => {
@@ -385,8 +364,7 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
-      expect(mockReplace).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("stage가 없으면 네비게이션하지 않아야 한다", () => {
@@ -403,7 +381,7 @@ describe("StageNavigator", () => {
       handleMessage(message);
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("잘못된 JSON 형식의 메시지를 받으면 에러를 콘솔에 출력하고 네비게이션하지 않아야 한다", () => {
@@ -426,7 +404,7 @@ describe("StageNavigator", () => {
           metadata: expect.any(Object),
         }),
       );
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
     });
