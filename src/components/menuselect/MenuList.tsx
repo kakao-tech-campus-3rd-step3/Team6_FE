@@ -22,6 +22,8 @@ export const MenuList = () => {
 
       if (response.success) {
         //TODO : data랑 Menu 어떻게 섞을지
+      } else {
+        console.error("게임 목록 조회 실패", response.message);
       }
     } catch (error) {
       console.error("메시지 파싱 실패", error, message.body);
