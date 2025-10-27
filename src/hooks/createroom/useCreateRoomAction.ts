@@ -1,5 +1,5 @@
 import type { CreateRoomActionReturn } from "@/hooks/createroom";
-import type { WaitingRoomResponse } from "@/hooks/createroom/types";
+import type { CreateRoomResponse } from "@/hooks/createroom/types";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
 import type { IMessage } from "@stomp/stompjs";
@@ -18,7 +18,7 @@ export const useCreateRoomAction = (
 
   const handleWaitingRoomMessage = useCallback((message: IMessage) => {
     try {
-      const response = JSON.parse(message.body) as WaitingRoomResponse;
+      const response = JSON.parse(message.body) as CreateRoomResponse;
 
       const newRoomId = response.data?.roomId;
 

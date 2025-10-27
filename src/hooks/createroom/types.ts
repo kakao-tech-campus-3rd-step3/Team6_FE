@@ -12,7 +12,7 @@ export interface CreateRoomActionReturn {
   handleCreateRoom: () => Promise<void>;
 }
 
-interface WaitingRoomData {
+interface CreateRoomData {
   roomId: string;
 }
-export type WaitingRoomResponse = BaseResponse<WaitingRoomData>;
+export type CreateRoomResponse = BaseResponse<CreateRoomData>;
