@@ -45,6 +45,9 @@ export const useProfileForm = () => {
             navigate(`/waiting-room/${roomId}?isHost=false`);
           } else if (purpose === "create-room") {
             navigate("/create-room");
+          } else {
+            showToast.success("프로필 생성이 완료되었습니다.");
+            navigate("/");
           }
         },
         onError: (err) => {
