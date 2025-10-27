@@ -11,7 +11,7 @@ export const TopicList = ({ topics, selected, onSelect }: TopicListProps) => {
             "w-full max-w-full min-w-0",
             "overflow-x-auto overflow-y-hidden",
             "touch-pan-x overscroll-x-contain",
-            "scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100",
+            "hide-scrollbar",
           )}
         >
           <div className="inline-flex min-w-max items-center gap-2 px-4">

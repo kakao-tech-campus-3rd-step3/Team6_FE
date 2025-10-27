@@ -23,3 +23,12 @@ input:-webkit-autofill:active {
 input:-moz-autofill {
   background-color: transparent !important;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
