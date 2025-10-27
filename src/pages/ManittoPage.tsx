@@ -15,7 +15,7 @@ const ManittoPage = () => {
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("roomId") || "";
   const isHost = searchParams.get("isHost") === "true";
-  const { publish } = useStompPublish();
+  const { publish, isConnected } = useStompPublish();
   const [myManitto, setMyManitto] = useState<string>();
 
   const handleManittoMessage = useCallback((message: IMessage) => {
@@ -30,7 +30,7 @@ const ManittoPage = () => {
   useStompSubscription("/user/queue/game-result", handleManittoMessage);
 
   useEffect(() => {
-    if (!isHost || !roomId) return;
+    if (!isHost || !roomId || !isConnected) return;
 
     const timer = setTimeout(() => {
       publish(`/app/room/${roomId}/start-game`, {
@@ -40,7 +40,7 @@ const ManittoPage = () => {
     }, SYNC_DELAY);
 
     return () => clearTimeout(timer);
-  }, [isHost, roomId, publish]);
+  }, [isHost, roomId, isConnected, publish]);
 
   const manittoProfile: Participant = {
     id: 1,
