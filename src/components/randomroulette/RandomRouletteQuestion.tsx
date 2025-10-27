@@ -1,9 +1,6 @@
+import type { RandomRouletteQuestionProps } from "@/components/randomroulette/types";
 import { DEFAULT_QUESTIONS } from "@/constants";
 import { MessageSquareQuoteIcon } from "lucide-react";
-
-interface RandomRouletteQuestionProps {
-  question?: string;
-}
 
 export const RandomRouletteQuestion = ({ question }: RandomRouletteQuestionProps) => {
   const displayQuestion = question || DEFAULT_QUESTIONS[Math.floor(Math.random() * DEFAULT_QUESTIONS.length)];

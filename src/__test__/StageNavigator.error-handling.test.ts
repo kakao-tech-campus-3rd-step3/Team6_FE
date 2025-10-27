@@ -1,7 +1,7 @@
 import type { StageNavigatorTestType } from "@/__test__/test-type";
 import { stageNavigator } from "@/services/stomp/StageNavigator";
 import { stompService } from "@/services/stomp/StompService";
-import type { PushFunction, ReplaceFunction } from "@/services/stomp/types";
+import type { NavigateFn } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
 import type { IMessage } from "@stomp/stompjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,8 +10,7 @@ vi.mock("@/services/stomp/StompService");
 vi.mock("@/utils/stage");
 
 describe("StageNavigator - 에러 핸들링", () => {
-  let mockPush: PushFunction;
-  let mockReplace: ReplaceFunction;
+  let mockNavigate: NavigateFn;
   let mockUnsubscribe: () => void;
 
   beforeEach(() => {
@@ -22,15 +21,13 @@ describe("StageNavigator - 에러 핸들링", () => {
     internal.currentRoomId = null;
     internal.lastEventTypeMap = new Map();
     internal.subscribers = new Set();
-    internal.push = null;
-    internal.replace = null;
+    internal.navigate = null;
     internal.isHost = false;
 
-    mockPush = vi.fn();
-    mockReplace = vi.fn();
+    mockNavigate = vi.fn();
     mockUnsubscribe = vi.fn();
 
-    stageNavigator.setFlowActions(mockPush, mockReplace);
+    stageNavigator.setNavigate(mockNavigate);
   });
 
   describe("STOMP 연결 실패", () => {
@@ -103,7 +100,7 @@ describe("StageNavigator - 에러 핸들링", () => {
           metadata: expect.any(Object),
         }),
       );
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
     });
@@ -127,7 +124,7 @@ describe("StageNavigator - 에러 핸들링", () => {
           metadata: expect.any(Object),
         }),
       );
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
     });
@@ -151,7 +148,7 @@ describe("StageNavigator - 에러 핸들링", () => {
           metadata: expect.any(Object),
         }),
       );
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
     });
@@ -169,7 +166,7 @@ describe("StageNavigator - 에러 핸들링", () => {
       }).not.toThrow();
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("메시지 body가 손상된 JSON이면 에러를 로깅해야 한다", () => {
@@ -190,7 +187,7 @@ describe("StageNavigator - 에러 핸들링", () => {
       });
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(corruptedMessages.length);
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
     });
@@ -236,7 +233,7 @@ describe("StageNavigator - 에러 핸들링", () => {
       handleMessage(message);
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("data.stage가 undefined이면 네비게이션하지 않아야 한다", () => {
@@ -252,7 +249,7 @@ describe("StageNavigator - 에러 핸들링", () => {
       handleMessage(message);
 
       expect(getPageFromStage).not.toHaveBeenCalled();
-      expect(mockPush).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it("getPageFromStage가 예외를 던져도 에러를 처리해야 한다", () => {

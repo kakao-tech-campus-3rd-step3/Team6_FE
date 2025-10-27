@@ -1,67 +1,72 @@
 type StageConfig = {
-  activity: string;
-  getParams: (roomId: string, isHost: boolean) => Record<string, string>;
+  path: string;
+  getSearchParams: (roomId: string, isHost: boolean) => URLSearchParams;
 };
 
 const STAGE_CONFIG: Record<string, StageConfig> = {
   PROFILE_VIEW_STAGE: {
-    activity: "ProfileViewPage",
-    getParams: (roomId, isHost) => ({
-      title: "프로필 소개",
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/profile-view",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
   GAME_LIST_STAGE: {
-    activity: "MenuSelectPage",
-    getParams: (roomId, isHost) => ({
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/menu",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
   MANITTO_STAGE: {
-    activity: "ManittoPage",
-    getParams: (roomId, isHost) => ({
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/manitto",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
   TOPIC_RECOMMEND_STAGE: {
-    activity: "TopicRecommendPage",
-    getParams: (roomId, isHost) => ({
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/topic-recommend",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
   RANDOM_ROULETTE_STAGE: {
-    activity: "RandomRoulettePage",
-    getParams: (roomId, isHost) => ({
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/random-roulette",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
   ENDING_STAGE: {
-    activity: "EndingPage",
-    getParams: (roomId, isHost) => ({
-      roomId,
-      isHost: String(isHost),
-    }),
+    path: "/ending",
+    getSearchParams: (roomId, isHost) => {
+      const params = new URLSearchParams();
+      params.set("roomId", roomId);
+      params.set("isHost", String(isHost));
+      return params;
+    },
   },
 };
 
-export const getPageFromStage = (
-  stage: string,
-  roomId: string,
-  isHost: boolean,
-): { activity: string; params?: Record<string, string> } | null => {
+export const getPageFromStage = (stage: string, roomId: string, isHost: boolean): string | null => {
   const config = STAGE_CONFIG[stage];
 
   if (!config) {
     return null;
   }
 
-  return {
-    activity: config.activity,
-    params: config.getParams(roomId, isHost),
-  };
+  const searchParams = config.getSearchParams(roomId, isHost);
+  return `${config.path}?${searchParams.toString()}`;
 };

@@ -1,14 +1,17 @@
 import { CreateRoomAction, PurposeSelection, RoomInfoSection } from "@/components/createroom";
 import { useCreateRoomForm } from "@/hooks/createroom";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import type { ActivityComponentType } from "@stackflow/react";
+import { PageLayout } from "@/layouts/PageLayout";
 import { FormProvider } from "react-hook-form";
 
-const CreateRoomPage: ActivityComponentType = () => {
+const CreateRoomPage = () => {
   const { methods, isFormValid } = useCreateRoomForm();
 
   return (
-    <AppScreen appBar={{ title: "방 만들기" }}>
+    <PageLayout
+      appBar={{
+        title: "방 만들기",
+      }}
+    >
       <FormProvider {...methods}>
         <main className="bg-gradient-primary min-h-screen space-y-4 p-4 pb-8">
           <RoomInfoSection />
@@ -16,7 +19,7 @@ const CreateRoomPage: ActivityComponentType = () => {
           <CreateRoomAction isFormValid={isFormValid} />
         </main>
       </FormProvider>
-    </AppScreen>
+    </PageLayout>
   );
 };
 

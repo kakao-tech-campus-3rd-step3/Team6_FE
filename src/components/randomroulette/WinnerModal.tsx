@@ -1,11 +1,7 @@
 import { RandomRouletteQuestion } from "@/components/randomroulette";
-import type { Participant } from "@/hooks/profileview";
+import type { WinnerModalProps } from "@/components/randomroulette/types";
 
-interface WinnerModalProps {
-  winner: Participant;
-}
-
-export const WinnerModal = ({ winner }: WinnerModalProps) => {
+export const WinnerModal = ({ winner, question }: WinnerModalProps) => {
   return (
     <section className="flex flex-col items-center space-y-4" aria-labelledby="winner-title">
       <header className="flex items-center justify-center gap-3">
@@ -15,7 +11,7 @@ export const WinnerModal = ({ winner }: WinnerModalProps) => {
           </h2>
         </div>
       </header>
-      <RandomRouletteQuestion />
+      <RandomRouletteQuestion question={question} />
     </section>
   );
 };

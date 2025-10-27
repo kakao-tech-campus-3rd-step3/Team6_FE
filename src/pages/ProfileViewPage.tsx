@@ -6,28 +6,22 @@ import {
   ProfileViewLoading,
 } from "@/components/profileview";
 import { useProfileNavigation, useRoomParticipants, useSwipe } from "@/hooks/profileview";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import type { ActivityComponentType } from "@stackflow/react/future";
-import { useActivity, useFlow } from "@stackflow/react/future";
+import { PageLayout } from "@/layouts/PageLayout";
 import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
-  const { params } = useActivity();
-  const roomId = typeof params?.roomId === "string" ? params.roomId : "";
-  const isHost = params?.isHost === "true";
+const ProfileViewPage = () => {
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("roomId") || "";
+  const isHost = searchParams.get("isHost") === "true";
 
   const { participants, isLoading } = useRoomParticipants(roomId);
-  const { push } = useFlow();
+  const navigate = useNavigate();
 
   const { currentIndex, handleNext, handlePrev, canGoNext, canGoPrev, isLast } = useProfileNavigation({
     totalCount: participants.length,
     onComplete: () => {
-      push("ProfileCheckPage", {
-        title: "프로필 확인",
-        roomId,
-        participants: JSON.stringify(participants),
-        isHost: String(isHost),
-      });
+      navigate(`/profile-check?roomId=${roomId}&isHost=${isHost}`, { state: { participants } });
     },
   });
 
@@ -53,16 +47,16 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
   if (isLoading || participants.length === 0) {
     return (
-      <AppScreen appBar={{ title: "프로필 소개" }}>
+      <PageLayout appBar={{ title: "프로필 소개" }}>
         <main className="bg-gradient-primary flex min-h-screen items-center justify-center p-6">
           <ProfileViewLoading />
         </main>
-      </AppScreen>
+      </PageLayout>
     );
   }
 
   return (
-    <AppScreen appBar={{ title: "프로필 소개" }}>
+    <PageLayout appBar={{ title: "프로필 소개" }}>
       <main
         className="bg-gradient-primary flex min-h-screen flex-col items-center justify-between p-6"
         onTouchStart={handleTouchStart}
@@ -83,14 +77,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
 
         {isLast && (
           <Button
-            onClick={() =>
-              push("ProfileCheckPage", {
-                title: "프로필 확인",
-                roomId,
-                participants: JSON.stringify(participants),
-                isHost: String(isHost),
-              })
-            }
+            onClick={() => navigate(`/profile-check?roomId=${roomId}&isHost=${isHost}`, { state: { participants } })}
             className="w-full max-w-md"
             aria-label="모든 프로필 확인 완료, 다음 단계로 이동"
           >
@@ -98,7 +85,7 @@ const ProfileViewPage: ActivityComponentType<"ProfileViewPage"> = () => {
           </Button>
         )}
       </main>
-    </AppScreen>
+    </PageLayout>
   );
 };
 

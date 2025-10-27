@@ -1,6 +1,6 @@
 import { stageNavigator } from "@/services/stomp/StageNavigator";
-import { useActivity, useFlow } from "@stackflow/react/future";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { useStompConnection } from "./stomp";
 
@@ -9,25 +9,29 @@ export const setLastEventType = (roomId: string, eventType: string) => {
 };
 
 export const useStageNavigation = () => {
-  const { push, replace } = useFlow();
-  const { params, isActive, name } = useActivity();
-  const roomId = typeof params?.roomId === "string" ? params.roomId : "";
-  const isHost = params?.isHost === "true";
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const params = useParams<{ roomId?: string }>();
+
+  const roomId = params.roomId || searchParams.get("roomId") || "";
+  const isHost = searchParams.get("isHost") === "true";
   const { isConnected } = useStompConnection();
-  const subscriberId = name;
+  const subscriberId = useId();
 
   useEffect(() => {
-    stageNavigator.setFlowActions(push, replace);
+    stageNavigator.setNavigate(navigate);
     stageNavigator.setIsHost(isHost);
-  }, [push, replace, isHost]);
+  }, [navigate, isHost]);
 
   useEffect(() => {
-    if (!roomId || !isConnected || !isActive) return;
+    if (!roomId || !isConnected) {
+      return;
+    }
 
     stageNavigator.attach(roomId, subscriberId);
 
     return () => {
       stageNavigator.detach(subscriberId);
     };
-  }, [roomId, isConnected, isActive, subscriberId]);
+  }, [roomId, isConnected, subscriberId]);
 };
