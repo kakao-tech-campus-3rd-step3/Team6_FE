@@ -1,5 +1,6 @@
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { UseWaitingRoomDataProps, WaitingRoomResponse } from "@/hooks/waitingroom/types";
+import { showToast } from "@/utils/toast";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useReducer } from "react";
 
@@ -18,10 +19,12 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
     try {
       const response = JSON.parse(message.body) as WaitingRoomResponse;
 
-      if (response.success) {
+      if (!response.success) {
+        showToast.error("메시지 파싱에 실패했습니다.");
         return;
       }
 
+      // TODO : data구조 변경 요청하기
       const { type, payload } = response.data;
 
       if (payload.room && payload.participants) {

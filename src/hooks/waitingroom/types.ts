@@ -4,20 +4,20 @@ export interface Participant {
   role: "HOST" | "MEMBER";
 }
 
-interface WaitingRoomInfo {
+export interface WaitingRoomInfo {
   roomId: string;
   name: string;
   capacity: number;
   hostId: number;
 }
 
-interface WaitingRoomPayload {
+export interface WaitingRoomPayload {
   status: "AVAILABLE" | "FULL";
   room: WaitingRoomInfo;
   participants: Participant[];
 }
 
-interface WaitingRoomData {
+export interface WaitingRoomData {
   type: "PARTICIPANT_JOINED" | "PARTICIPANT_LIST" | "USER_LEFT";
   payload: WaitingRoomPayload & {
     newParticipant?: Participant;
