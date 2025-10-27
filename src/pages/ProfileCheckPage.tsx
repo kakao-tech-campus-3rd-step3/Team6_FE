@@ -1,32 +1,25 @@
 import { ProfileCheckComplete, ProfileCheckReadyButton, ProfileCheckStatus } from "@/components/profilecheck";
 import { useStageNavigation } from "@/hooks";
+import type { Participant } from "@/hooks/profileview/types";
 import { useRoomParticipants } from "@/hooks/profileview";
 import { useStompPublish } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
 import { PageLayout } from "@/layouts/PageLayout";
-import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 const ProfileCheckPage = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const roomId = searchParams.get("roomId") || "";
   const isHost = searchParams.get("isHost") === "true";
 
   useStageNavigation();
   const { publish } = useStompPublish();
 
-  const participantsFromParams = useMemo(() => {
-    try {
-      const participantsParam = searchParams.get("participants");
-      return participantsParam ? JSON.parse(decodeURIComponent(participantsParam)) : null;
-    } catch {
-      return null;
-    }
-  }, [searchParams]);
-
+  const participantsFromState = (location.state as { participants?: Participant[] })?.participants;
   const { participants: fetchedParticipants, isLoading } = useRoomParticipants(roomId);
 
-  const participants = fetchedParticipants.length > 0 ? fetchedParticipants : participantsFromParams || [];
+  const participants = participantsFromState || fetchedParticipants;
 
   const handleStart = () => {
     if (!roomId || !isHost) return;

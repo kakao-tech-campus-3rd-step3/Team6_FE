@@ -21,9 +21,7 @@ const ProfileViewPage = () => {
   const { currentIndex, handleNext, handlePrev, canGoNext, canGoPrev, isLast } = useProfileNavigation({
     totalCount: participants.length,
     onComplete: () => {
-      navigate(
-        `/profile-check?roomId=${roomId}&isHost=${isHost}&participants=${encodeURIComponent(JSON.stringify(participants))}`,
-      );
+      navigate(`/profile-check?roomId=${roomId}&isHost=${isHost}`, { state: { participants } });
     },
   });
 
@@ -79,11 +77,7 @@ const ProfileViewPage = () => {
 
         {isLast && (
           <Button
-            onClick={() =>
-              navigate(
-                `/profile-check?roomId=${roomId}&isHost=${isHost}&participants=${encodeURIComponent(JSON.stringify(participants))}`,
-              )
-            }
+            onClick={() => navigate(`/profile-check?roomId=${roomId}&isHost=${isHost}`, { state: { participants } })}
             className="w-full max-w-md"
             aria-label="모든 프로필 확인 완료, 다음 단계로 이동"
           >
