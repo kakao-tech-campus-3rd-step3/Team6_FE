@@ -16,7 +16,7 @@ export const TopicList = ({ topics, selected, onSelect }: TopicListProps) => {
         >
           <div className="inline-flex min-w-max items-center gap-2 px-4">
             {topics.map((topic) => {
-              const on = selected === topic;
+              const on = selected?.name === topic.name;
               return (
                 <button
                   key={topic.name}
