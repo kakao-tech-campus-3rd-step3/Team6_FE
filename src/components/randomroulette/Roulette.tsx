@@ -5,7 +5,7 @@ import type { RouletteProps } from "@/components/randomroulette/types";
 import { useRouletteLogic } from "@/hooks/randomroulette/useRouletteLogic";
 import { useOverlay } from "@/hooks/useOverlay";
 import { RotateCwIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const FULL_CIRCLE_DEGREES = 360;
 const SECTION_CENTER_DIVISOR = 2;
@@ -15,7 +15,7 @@ export const Roulette = ({ participants, onResult, gameResult, isHost = false, o
     participants,
     onResult,
   });
-
+  const lastGameResultRef = useRef<typeof gameResult>(null);
   const { isOpen, open, close } = useOverlay();
 
   useEffect(() => {
@@ -25,11 +25,12 @@ export const Roulette = ({ participants, onResult, gameResult, isHost = false, o
   }, [winner, isSpinning, open]);
 
   useEffect(() => {
-    if (gameResult?.userName) {
-      spin(gameResult.userName);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameResult?.userName]);
+    if (!gameResult || !gameResult.userName) return;
+    if (lastGameResultRef.current === gameResult) return;
+
+    lastGameResultRef.current = gameResult;
+    spin(gameResult.userName);
+  }, [gameResult, spin]);
 
   return (
     <section className="flex w-full flex-col items-center gap-6" aria-labelledby="roulette-title">

@@ -57,7 +57,7 @@ export const useRouletteLogic = ({ participants, onResult }: UseRouletteLogicPro
 
       setIsSpinning(true);
       setWinner(null);
-
+      // TODO : 백엔드에서 userId값 넘겨달라고 하기
       const winnerIndex = participants.findIndex((p) => p.name === winnerName);
 
       if (winnerIndex === -1) {

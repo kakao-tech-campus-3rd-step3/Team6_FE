@@ -1,4 +1,5 @@
 import { RandomRouletteTip, Roulette } from "@/components/randomroulette";
+import type { GameResult } from "@/components/randomroulette/types";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
 import { useRoomParticipants } from "@/hooks/profileview";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
@@ -7,14 +8,7 @@ import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-interface GameResultData {
-  userName: string;
-  question: {
-    content: string;
-  };
-}
-
-type GameResult = BaseResponse<GameResultData>;
+type GameResultResponse = BaseResponse<GameResult>;
 
 const RandomRoulettePage = () => {
   const [searchParams] = useSearchParams();
@@ -28,10 +22,10 @@ const RandomRoulettePage = () => {
 
   const handleGameResultMessage = useCallback((message: IMessage) => {
     try {
-      const response = JSON.parse(message.body) as GameResult;
+      const response = JSON.parse(message.body) as GameResultResponse;
 
       if (response.success) {
-        setGameResult(response);
+        setGameResult(response.data);
       }
     } catch (error) {
       console.error("게임 결과 파싱 실패", error);
@@ -63,12 +57,7 @@ const RandomRoulettePage = () => {
       }}
     >
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 overflow-x-hidden p-4 pb-8">
-        <Roulette
-          participants={participants}
-          gameResult={gameResult?.data}
-          isHost={isHost}
-          onStartGame={handleStartGame}
-        />
+        <Roulette participants={participants} gameResult={gameResult} isHost={isHost} onStartGame={handleStartGame} />
         <RandomRouletteTip />
       </main>
     </PageLayout>
