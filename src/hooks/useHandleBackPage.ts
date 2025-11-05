@@ -1,13 +1,13 @@
 import { useStompPublish } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
-import { useActivity } from "@stackflow/react/future";
+import { useSearchParams } from "react-router-dom";
 
 export const useHandleBackPage = () => {
   const { publish } = useStompPublish();
-  const { params } = useActivity();
+  const [searchParams] = useSearchParams();
 
-  const roomId = typeof params?.roomId === "string" ? params.roomId : "";
-  const isHost = params?.isHost === "true";
+  const roomId = searchParams.get("roomId") || "";
+  const isHost = searchParams.get("isHost") === "true";
 
   const canGoBack = isHost && !!roomId;
 

@@ -1,27 +1,25 @@
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/common";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import type { ActivityComponentType } from "@stackflow/react";
-import { useFlow } from "@stackflow/react/future";
+import { PageLayout } from "@/layouts/PageLayout";
+import { useNavigate } from "react-router-dom";
 
-const LandingPage: ActivityComponentType = () => {
-  const { push } = useFlow();
+const LandingPage = () => {
+  const navigate = useNavigate();
 
   const handleCreateRoom = () => {
-    push("ProfilePage", { title: "프로필 설정", purpose: "create-room" });
+    navigate("/profile?purpose=create-room");
   };
 
   const handleProfileSetup = () => {
-    push("ProfilePage", { title: "프로필 설정" });
+    navigate("/profile");
   };
 
   const handleQRJoin = () => {
     // TODO: 배포 후 URL로 접근할 수 있도록 구현 예정
-    console.log("QR로 참여하기 - 미구현");
   };
 
   return (
-    <AppScreen>
+    <PageLayout>
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center px-4 pt-20 pb-8">
         <header className="flex flex-col items-center">
           <img src={logo} alt="아이스브레이킹 앱 로고" width={313} height={313} fetchPriority="high" />
@@ -39,7 +37,7 @@ const LandingPage: ActivityComponentType = () => {
           </Button>
         </nav>
       </main>
-    </AppScreen>
+    </PageLayout>
   );
 };
 

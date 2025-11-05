@@ -3,8 +3,8 @@ import { FormSchema, type FormSchemaType } from "@/model/FormSchema";
 import { useAuthStore } from "@/store/authStore";
 import { showToast } from "@/utils/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useActivity, useFlow } from "@stackflow/react/future";
 import { useForm } from "react-hook-form";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export const useProfileForm = () => {
   const methods = useForm<FormSchemaType>({
@@ -22,8 +22,8 @@ export const useProfileForm = () => {
 
   const { mutate: createUser, isPending, error } = useCreateUser();
   const setAuth = useAuthStore((state) => state.setAuth);
-  const { push } = useFlow();
-  const { params } = useActivity();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const onSubmit = methods.handleSubmit((data) => {
     createUser(
@@ -38,20 +38,16 @@ export const useProfileForm = () => {
       {
         onSuccess: (response) => {
           setAuth(response.token, response.userId);
-          // URL에서 roomId 확인 (QR코드/링크로 들어온 참여자인지 체크)
-          const urlParams = new URLSearchParams(window.location.search);
-          const queryRoomId = urlParams.get("roomId");
-          const pathRoomId = params?.roomId as string;
-          const roomId = queryRoomId || pathRoomId;
-          const purpose = params?.purpose as string;
+          const roomId = searchParams.get("roomId");
+          const purpose = searchParams.get("purpose");
 
           if (roomId) {
-            push("WaitingRoomPage", { roomId, isHost: "false" });
+            navigate(`/waiting-room/${roomId}?isHost=false`);
           } else if (purpose === "create-room") {
-            push("CreateRoomPage", { title: "방 만들기" });
+            navigate("/create-room");
           } else {
-            // TODO : 추후 메뉴 선택 페이지로 이동 못하고 방 만들기 or 방 참여로만 되도록 변경 예정
-            push("MenuSelectPage", {});
+            showToast.success("프로필 생성이 완료되었습니다.");
+            navigate("/");
           }
         },
         onError: (err) => {

@@ -1,20 +1,18 @@
 import { Button } from "@/components/common";
-import { AuthGuard } from "@/components/guards/AuthGuard";
 import { WaitingMessage, WaitingRoomCode, WaitingRoomParticipants, WaitingRoomQRCode } from "@/components/waitingroom";
 import { useStageNavigation } from "@/hooks";
 import { useStompPublish } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
 import { useWaitingRoomData } from "@/hooks/waitingroom";
-import { AppScreen } from "@stackflow/plugin-basic-ui";
-import type { ActivityComponentType } from "@stackflow/react/future";
-import { useActivity } from "@stackflow/react/future";
+import { PageLayout } from "@/layouts/PageLayout";
+import { useParams, useSearchParams } from "react-router-dom";
 
-const WaitingRoomContent = () => {
-  const { params } = useActivity();
+const WaitingRoomPage = () => {
+  const params = useParams<{ roomId: string }>();
+  const [searchParams] = useSearchParams();
 
-  const roomIdParams = params?.roomId;
-  const roomId = typeof roomIdParams === "string" && roomIdParams.trim() ? roomIdParams.trim() : "";
-  const isHost = params?.isHost === "true";
+  const roomId = params.roomId?.trim() || "";
+  const isHost = searchParams.get("isHost") === "true";
 
   useStageNavigation();
 
@@ -27,9 +25,9 @@ const WaitingRoomContent = () => {
 
   if (!roomId) {
     return (
-      <AppScreen appBar={{ title: "대기실" }}>
+      <PageLayout appBar={{ title: "대기실" }}>
         <main className="flex items-center justify-center p-4 text-sm text-red-600">잘못된 방 ID입니다.</main>
-      </AppScreen>
+      </PageLayout>
     );
   }
 
@@ -44,7 +42,7 @@ const WaitingRoomContent = () => {
   };
 
   return (
-    <AppScreen appBar={{ title: "대기실" }}>
+    <PageLayout appBar={{ title: "대기실" }}>
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 p-4 pb-8">
         <WaitingRoomCode roomId={roomId} />
         <WaitingMessage />
@@ -64,15 +62,7 @@ const WaitingRoomContent = () => {
           </div>
         )}
       </main>
-    </AppScreen>
-  );
-};
-
-const WaitingRoomPage: ActivityComponentType<"WaitingRoomPage"> = () => {
-  return (
-    <AuthGuard>
-      <WaitingRoomContent />
-    </AuthGuard>
+    </PageLayout>
   );
 };
 

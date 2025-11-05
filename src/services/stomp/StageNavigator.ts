@@ -1,6 +1,6 @@
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import { stompService } from "@/services/stomp/StompService";
-import type { PushFunction, ReplaceFunction } from "@/services/stomp/types";
+import type { NavigateFn, RoomChangeResponse } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
 import type { IMessage } from "@stomp/stompjs";
 
@@ -12,8 +12,7 @@ class StageNavigator {
   private lastEventTypeMap = new Map<string, string>();
   private subscribers = new Set<string>();
 
-  private push: PushFunction | null = null;
-  private replace: ReplaceFunction | null = null;
+  private navigate: NavigateFn | null = null;
   private isHost = false;
 
   private constructor() {}
@@ -25,9 +24,8 @@ class StageNavigator {
     return StageNavigator.instance;
   }
 
-  public setFlowActions(push: PushFunction, replace: ReplaceFunction) {
-    this.push = push;
-    this.replace = replace;
+  public setNavigate(navigate: NavigateFn) {
+    this.navigate = navigate;
   }
 
   public setIsHost(isHost: boolean) {
@@ -87,21 +85,22 @@ class StageNavigator {
 
   private handleMessage = (message: IMessage) => {
     try {
-      if (!this.currentRoomId || !this.push || !this.replace) {
+      if (!this.currentRoomId || !this.navigate) {
         return;
       }
 
-      const response = JSON.parse(message.body);
+      const response = JSON.parse(message.body) as RoomChangeResponse;
+
       const stage = response.data?.stage;
       const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
 
       if (stage) {
-        const pageInfo = getPageFromStage(stage, this.currentRoomId, this.isHost);
-        if (pageInfo) {
+        const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
+        if (pageUrl) {
           if (lastEventType === "PREV") {
-            this.replace(pageInfo.activity, pageInfo.params || {});
+            this.navigate(pageUrl, { state: { direction: "back" } });
           } else {
-            this.push(pageInfo.activity, pageInfo.params || {});
+            this.navigate(pageUrl, { state: { direction: "forward" } });
           }
           this.lastEventTypeMap.delete(this.currentRoomId);
         }

@@ -1,7 +1,7 @@
-import { InputWithLabel, ErrorMessage } from "@/components/common";
+import { ErrorMessage, InputWithLabel } from "@/components/common";
+import type { FormSchemaType } from "@/model/FormSchema";
 import { range } from "@/utils";
 import { useFormContext } from "react-hook-form";
-import type { FormSchemaType } from "@/model/FormSchema";
 
 const AVAILABLE_START_AGE = 15;
 const AVAILABLE_END_AGE = 55;
@@ -17,12 +17,7 @@ export const ProfileInfo = () => {
   return (
     <section className="space-y-4">
       <div>
-        <InputWithLabel
-          label="이름"
-          id="profile-name"
-          placeholder="이름을 입력해주세요."
-          {...register("name")}
-        />
+        <InputWithLabel label="이름" id="profile-name" placeholder="이름을 입력해주세요." {...register("name")} />
         {errors.name && <ErrorMessage error={errors.name.message} />}
       </div>
       <div>
@@ -31,7 +26,7 @@ export const ProfileInfo = () => {
           type="tel"
           maxLength={MAX_PHONE_LENGTH}
           id="profile-phone"
-          placeholder="전화번호를 입력해주세요."
+          placeholder="전화번호를 입력해주세요.(- 제외)"
           {...register("phone")}
         />
         {errors.phone && <ErrorMessage error={errors.phone.message} />}

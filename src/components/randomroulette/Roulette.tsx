@@ -1,35 +1,36 @@
 import { Button } from "@/components/common";
+import { Overlay } from "@/components/common/Overlay";
 import { WinnerModal } from "@/components/randomroulette/WinnerModal";
+import type { RouletteProps } from "@/components/randomroulette/types";
 import { useRouletteLogic } from "@/hooks/randomroulette/useRouletteLogic";
 import { useOverlay } from "@/hooks/useOverlay";
 import { RotateCwIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const FULL_CIRCLE_DEGREES = 360;
 const SECTION_CENTER_DIVISOR = 2;
-interface RouletteProps {
-  participants?: string[];
-  onResult?: (winner: string) => void;
-}
 
-export const Roulette = ({
-  participants = ["김김김", "이이이", "박박박", "최최최", "나나나"],
-  onResult,
-}: RouletteProps) => {
-  const { isSpinning, winner, wheelRef, spin, getConicGradient } = useRouletteLogic({ participants, onResult });
-
-  const { open, render } = useOverlay({
-    title: "🎉 룰렛 결과",
-    closable: true,
-    closeOnBackdrop: true,
-    closeOnEscape: true,
+export const Roulette = ({ participants, onResult, gameResult, isHost = false, onStartGame }: RouletteProps) => {
+  const { isSpinning, winner, wheelRef, spin, getConicGradient } = useRouletteLogic({
+    participants,
+    onResult,
   });
+  const lastGameResultRef = useRef<typeof gameResult>(null);
+  const { isOpen, open, close } = useOverlay();
 
   useEffect(() => {
     if (winner && !isSpinning) {
       open();
     }
   }, [winner, isSpinning, open]);
+
+  useEffect(() => {
+    if (!gameResult || !gameResult.userName) return;
+    if (lastGameResultRef.current === gameResult) return;
+
+    lastGameResultRef.current = gameResult;
+    spin(gameResult.userName);
+  }, [gameResult, spin]);
 
   return (
     <section className="flex w-full flex-col items-center gap-6" aria-labelledby="roulette-title">
@@ -62,7 +63,7 @@ export const Roulette = ({
                     transform: `rotate(-${rotation}deg)`,
                   }}
                 >
-                  {participant}
+                  {participant.name}
                 </div>
               </div>
             );
@@ -70,16 +71,20 @@ export const Roulette = ({
         </div>
       </div>
 
-      <Button
-        onClick={spin}
-        disabled={isSpinning || participants.length === 0}
-        className="flex w-[200px] items-center justify-center gap-2 rounded-xl px-6 py-3"
-      >
-        <RotateCwIcon size={20} aria-hidden="true" />
-        {isSpinning ? "돌리는 중..." : "룰렛 돌리기"}
-      </Button>
+      {isHost && (
+        <Button
+          onClick={onStartGame}
+          disabled={isSpinning || participants.length === 0}
+          className="flex w-[200px] items-center justify-center gap-2 rounded-xl px-6 py-3"
+        >
+          <RotateCwIcon size={20} aria-hidden="true" />
+          {isSpinning ? "돌리는 중..." : "룰렛 돌리기"}
+        </Button>
+      )}
 
-      {render(winner && <WinnerModal winner={winner} />)}
+      <Overlay isOpen={isOpen} onClose={close} title="룰렛 결과">
+        {winner && <WinnerModal winner={winner} question={gameResult?.question.content} />}
+      </Overlay>
     </section>
   );
 };
