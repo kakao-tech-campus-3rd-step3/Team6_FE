@@ -1,5 +1,6 @@
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { UseWaitingRoomDataProps, WaitingRoomResponse } from "@/hooks/waitingroom/types";
+import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import { showToast } from "@/utils/toast";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useReducer } from "react";
@@ -16,50 +17,52 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
   });
 
   const handleRoomMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as WaitingRoomResponse;
+    const response = getMessageBody<WaitingRoomResponse>(message);
 
-      if (!response.success) {
-        showToast.error("메시지 파싱에 실패했습니다.");
-        return;
-      }
+    if (!response) {
+      console.error("대기방 메시지 파싱 실패:", message.body);
+      showToast.error("메시지 파싱에 실패했습니다.");
+      return;
+    }
 
-      // TODO : data구조 변경 요청하기
-      const { type, payload } = response.data;
+    if (!response.success) {
+      showToast.error("메시지 파싱에 실패했습니다.");
+      return;
+    }
 
-      if (payload.room && payload.participants) {
+    // TODO : data구조 변경 요청하기
+    const { type, payload } = response.data;
+
+    if (payload.room && payload.participants) {
+      dispatch({
+        type: "ROOM_INFO_UPDATE",
+        payload: { participants: payload.participants, room: payload.room },
+      });
+      return;
+    }
+
+    switch (type) {
+      case "PARTICIPANT_LIST":
         dispatch({
-          type: "ROOM_INFO_UPDATE",
-          payload: { participants: payload.participants, room: payload.room },
+          type: "PARTICIPANT_LIST",
+          payload: { participants: payload.participants || [] },
         });
-        return;
-      }
+        break;
 
-      switch (type) {
-        case "PARTICIPANT_LIST":
+      case "PARTICIPANT_JOINED":
+        if (payload.newParticipant) {
           dispatch({
-            type: "PARTICIPANT_LIST",
-            payload: { participants: payload.participants || [] },
+            type: "PARTICIPANT_JOINED",
+            payload: { newParticipant: payload.newParticipant },
           });
-          break;
+        }
+        break;
 
-        case "PARTICIPANT_JOINED":
-          if (payload.newParticipant) {
-            dispatch({
-              type: "PARTICIPANT_JOINED",
-              payload: { newParticipant: payload.newParticipant },
-            });
-          }
-          break;
-
-        case "USER_LEFT":
-          if (payload.userId) {
-            dispatch({ type: "USER_LEFT", payload: { userId: payload.userId } });
-          }
-          break;
-      }
-    } catch (error) {
-      console.error("대기방 메시지 파싱 실패:", error, message.body);
+      case "USER_LEFT":
+        if (payload.userId) {
+          dispatch({ type: "USER_LEFT", payload: { userId: payload.userId } });
+        }
+        break;
     }
   }, []);
 

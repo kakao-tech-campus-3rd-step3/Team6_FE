@@ -2,6 +2,7 @@ import type { MenuId } from "@/components/menuselect";
 import { MENU } from "@/constants";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import { setLastEventType } from "@/hooks/useStageNavigation";
+import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -17,16 +18,17 @@ export const MenuList = () => {
   const { publish, isConnected } = useStompPublish();
 
   const handleGameListMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as BaseResponse<string[]>;
+    const response = getMessageBody<BaseResponse<string[]>>(message);
 
-      if (response.success) {
-        //TODO : data랑 Menu 어떻게 섞을지
-      } else {
-        console.error("게임 목록 조회 실패", response.message);
-      }
-    } catch (error) {
-      console.error("메시지 파싱 실패", error, message.body);
+    if (!response) {
+      console.error("메시지 파싱 실패", message.body);
+      return;
+    }
+
+    if (response.success) {
+      //TODO : data랑 Menu 어떻게 섞을지
+    } else {
+      console.error("게임 목록 조회 실패", response.message);
     }
   }, []);
 
