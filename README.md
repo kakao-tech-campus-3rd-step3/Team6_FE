@@ -4,6 +4,8 @@
 
 카카오테크캠퍼스 3기 경북대학교 2팀 프로젝트
 
+![얼음땡 로고](https://github.com/user-attachments/assets/2e36f1be-3b3e-4967-b670-47d7b522f81e)
+
 ## 프로젝트 소개
 
 얼음땡은 처음 만난 사람들이 어색함을 깨고 친해질 수 있도록 돕는 실시간 아이스브레이킹 게임 플랫폼입니다.
@@ -40,7 +42,7 @@ src/
 ├── api/              # REST API 통신 관련
 ├── assets/           # 정적 리소스 (이미지, 폰트 등)
 ├── components/       # 재사용 가능한 UI 컴포넌트
-│   ├── common/      # 공통 컴포넌트 (Button, Modal 등)
+│   ├── common/      # 공통 컴포넌트
 │   ├── createprofile/ # 프로필 생성 관련
 │   ├── createroom/  # 방 생성 관련
 │   ├── ending/      # 종료 화면 관련
@@ -106,23 +108,77 @@ pnpm preview
 - 방 이름, 인원 설정
 - 참가자 실시간 확인
 
-### 2. 게임 선택
+![방 생성 및 인원 확인](https://github.com/user-attachments/assets/e35fb5a1-7e0d-42aa-a665-62eaa40555ef)
+
+### 2. 참여자 확인
+
+<table>
+  <tr style="text: center;">
+    <td>
+      <img src="https://github.com/user-attachments/assets/d3eff977-49ea-42ca-ab5b-b293f9f7075e" alt="룰렛 시작 전 이미지" style="width: 100%; max-width: 300px;">
+      <br>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/a40c042d-dd64-481b-81df-dd64506ff4b0" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/097c7053-c70a-4e24-9a9e-f0f8fbcb9cfc" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+    </td>
+     <td>
+      <img src="https://github.com/user-attachments/assets/4be2ad3a-5db0-46ed-aea7-ab3deb8e6be0" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+    </td>
+  </tr>
+</table>
+
+### 3. 게임 선택
 
 - 랜덤 룰렛
 - 마니또
 - 주제 추천
 - 종료
 
-### 3. 게임 진행
+![게임 리스트](https://github.com/user-attachments/assets/70a0a35f-295e-44dc-8a28-25b7007b5741)
+
+### 4. 게임 진행
 
 - 실시간 게임 결과 공유
-- 참가자 프로필 확인
+
+<table>
+  <tr style="text: center;">
+    <td>
+      <img src="https://github.com/user-attachments/assets/d809838d-41d4-467b-8649-83f530c06c40" alt="룰렛 시작 전 이미지" style="width: 100%; max-width: 300px;">
+      <br>
+      <sub>룰렛 시작 전</sub>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/55cf5b58-bc10-496f-98a4-662a48609efd" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+      <sub>룰렛 결과</sub>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/69b40c6a-6d3d-4ea1-bad2-b2f6c6ac1dce" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+      <sub>대화 주제 추천</sub>
+    </td>
+     <td>
+      <img src="https://github.com/user-attachments/assets/44fa552a-7a6e-4aff-975f-c6e375e83bd7" alt="이미지 설명 2" style="width: 100%; max-width: 300px;">
+      <br>
+      <sub>마니또</sub>
+    </td>
+  </tr>
+</table>
 
 ## 팀원
 
-| 이름     | 역할          | GitHub                                   |
-| -------- | ------------- | ---------------------------------------- |
-| [김건호] | [FE 테크리더] | [@kimgho](https://github.com/kimgho)     |
-| [차서현] | [FE]          | [@cktjgus](https://github.com/cktjgus)   |
-| [최원아] | [FE]          | [@wnhaoo](https://github.com/wnhaoo)     |
-| ------   | ------        | ---------------------------------------- |
+| 이름   | 역할        | GitHub                                 |
+| ------ | ----------- | -------------------------------------- |
+| 김건호 | FE 테크리더 | [@kimgho](https://github.com/kimgho)   |
+| 차서현 | FE          | [@cktjgus](https://github.com/cktjgus) |
+| 최원아 | FE          | [@wnhaoo](https://github.com/wnhaoo)   |
+
+## 백엔드 Github
+
+[경북대 2팀 백엔드 레포지토리](https://github.com/kakao-tech-campus-3rd-step3/Team6_BE)
