@@ -17,6 +17,7 @@ export const useRoomParticipants = (roomId: string) => {
   const isHost = searchParams.get("isHost") === "true";
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // TODO : 백엔드 마니또 데이터가 정상이 되면 제거
   const roomParticipants = useUserStore((state) => state.setParticipants);
   const handleParticipantMessage = useCallback(
     (message: IMessage) => {
