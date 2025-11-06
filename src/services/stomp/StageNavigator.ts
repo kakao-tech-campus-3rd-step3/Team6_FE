@@ -99,14 +99,18 @@ class StageNavigator {
     const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
 
     if (stage) {
-      const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
-      if (pageUrl) {
-        if (lastEventType === "PREV") {
-          this.navigate(pageUrl, { state: { direction: "back" } });
-        } else {
-          this.navigate(pageUrl, { state: { direction: "forward" } });
+      try {
+        const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
+        if (pageUrl) {
+          if (lastEventType === "PREV") {
+            this.navigate(pageUrl, { state: { direction: "back" } });
+          } else {
+            this.navigate(pageUrl, { state: { direction: "forward" } });
+          }
+          this.lastEventTypeMap.delete(this.currentRoomId);
         }
-        this.lastEventTypeMap.delete(this.currentRoomId);
+      } catch (error) {
+        console.error("페이지 네비게이션 실패", error);
       }
     }
   };
