@@ -397,13 +397,7 @@ describe("StageNavigator", () => {
 
       handleMessage(message);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          code: "STOMP_MESSAGE_PARSE_ERROR",
-          metadata: expect.any(Object),
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("메시지 파싱 실패", "invalid json");
       expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();

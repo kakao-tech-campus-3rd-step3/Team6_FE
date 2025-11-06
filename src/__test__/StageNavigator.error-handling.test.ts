@@ -93,13 +93,7 @@ describe("StageNavigator - 에러 핸들링", () => {
 
       handleMessage(nullBodyMessage);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          code: "STOMP_MESSAGE_PARSE_ERROR",
-          metadata: expect.any(Object),
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("메시지 파싱 실패", null);
       expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
@@ -117,13 +111,7 @@ describe("StageNavigator - 에러 핸들링", () => {
 
       handleMessage(undefinedBodyMessage);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          code: "STOMP_MESSAGE_PARSE_ERROR",
-          metadata: expect.any(Object),
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("메시지 파싱 실패", undefined);
       expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
@@ -141,13 +129,7 @@ describe("StageNavigator - 에러 핸들링", () => {
 
       handleMessage(emptyBodyMessage);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          code: "STOMP_MESSAGE_PARSE_ERROR",
-          metadata: expect.any(Object),
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith("메시지 파싱 실패", "");
       expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
@@ -186,7 +168,7 @@ describe("StageNavigator - 에러 핸들링", () => {
         handleMessage(msg as IMessage);
       });
 
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(corruptedMessages.length);
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(corruptedMessages.length * 2);
       expect(mockNavigate).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
@@ -205,7 +187,7 @@ describe("StageNavigator - 에러 핸들링", () => {
         handleMessage(invalidMessage);
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(errorCount);
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(errorCount * 2);
 
       const internal = stageNavigator as unknown as StageNavigatorTestType;
       expect(internal.currentRoomId).toBe("room-123");
@@ -272,7 +254,7 @@ describe("StageNavigator - 에러 핸들링", () => {
         handleMessage(message);
       }).not.toThrow();
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith("페이지 네비게이션 실패", expect.any(Error));
 
       consoleErrorSpy.mockRestore();
     });

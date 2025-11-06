@@ -75,7 +75,7 @@ describe("handleStompError", () => {
 
       handleStompError(message);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("에러 메시지 파싱 실패:", expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith("에러 메시지 파싱 실패:", "invalid json");
     });
 
     it("빈 문자열이면 파싱 실패 에러를 로깅해야 한다", () => {
@@ -85,7 +85,7 @@ describe("handleStompError", () => {
 
       handleStompError(message);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith("에러 메시지 파싱 실패:", expect.any(Error));
+      expect(consoleErrorSpy).toHaveBeenCalledWith("에러 메시지 파싱 실패:", "");
     });
   });
 
