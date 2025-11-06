@@ -1,9 +1,10 @@
-import { RandomRouletteTip, Roulette } from "@/components/randomroulette";
+import { RandomRouletteTip, Roulette, RouletteSkeleton } from "@/components/randomroulette";
 import type { GameResult } from "@/components/randomroulette/types";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
 import { useRoomParticipants } from "@/hooks/profileview";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import { PageLayout } from "@/layouts/PageLayout";
+import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -14,21 +15,22 @@ const RandomRoulettePage = () => {
   const [searchParams] = useSearchParams();
   const roomId = searchParams.get("roomId") || "";
   const isHost = searchParams.get("isHost") === "true";
-  const { participants } = useRoomParticipants(roomId);
+  const { participants, isLoading } = useRoomParticipants(roomId);
   const { publish } = useStompPublish();
   useStageNavigation();
   const { handleBack, canGoBack } = useHandleBackPage();
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
 
   const handleGameResultMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as GameResultResponse;
+    const response = getMessageBody<GameResultResponse>(message);
 
-      if (response.success) {
-        setGameResult(response.data);
-      }
-    } catch (error) {
-      console.error("게임 결과 파싱 실패", error);
+    if (!response) {
+      console.error("메시지 파싱 실패", message.body);
+      return;
+    }
+
+    if (response.success) {
+      setGameResult(response.data);
     }
   }, []);
 
@@ -57,7 +59,11 @@ const RandomRoulettePage = () => {
       }}
     >
       <main className="bg-gradient-primary flex min-h-screen flex-col items-center space-y-4 overflow-x-hidden p-4 pb-8">
-        <Roulette participants={participants} gameResult={gameResult} isHost={isHost} onStartGame={handleStartGame} />
+        {isLoading ? (
+          <RouletteSkeleton />
+        ) : (
+          <Roulette participants={participants} gameResult={gameResult} isHost={isHost} onStartGame={handleStartGame} />
+        )}
         <RandomRouletteTip />
       </main>
     </PageLayout>
