@@ -1,10 +1,12 @@
-import { ProfileCard } from "@/components/profileview";
+import { ProfileCard, ProfileCardSkeleton } from "@/components/profileview";
 import { useHandleBackPage, useStageNavigation } from "@/hooks";
 import type { Participant } from "@/hooks/profileview";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import { PageLayout } from "@/layouts/PageLayout";
+import { useUserStore } from "@/store/useUserStore";
+import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import type { IMessage } from "@stomp/stompjs";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const SYNC_DELAY = 200;
@@ -17,13 +19,16 @@ const ManittoPage = () => {
   const isHost = searchParams.get("isHost") === "true";
   const { publish, isConnected } = useStompPublish();
   const [myManitto, setMyManitto] = useState<string>();
+  const getParticipantByName = useUserStore((state) => state.getParticipantByName);
 
   const handleManittoMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as BaseResponse<string>;
+    const response = getMessageBody<BaseResponse<string>>(message);
+    if (!response) {
+      console.error("메시지 파싱 실패", message.body);
+      return;
+    }
+    if (response.success) {
       setMyManitto(response.data);
-    } catch {
-      console.error("실패");
     }
   }, []);
 
@@ -42,15 +47,10 @@ const ManittoPage = () => {
     return () => clearTimeout(timer);
   }, [isHost, roomId, isConnected, publish]);
 
-  const manittoProfile: Participant = {
-    id: 1,
-    name: myManitto || "알 수 없음",
-    age: 25,
-    mbtiType: "ENFP",
-    interests: ["스포츠", "음악", "영화", "독서", "여행", "요리", "게임", "동물"],
-    introduction:
-      "새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운 시간 보내요 새로운 사람들과 만나는 것을 좋아해요! 함께 즐거운",
-  };
+  const manittoProfile: Participant | undefined = useMemo(() => {
+    if (!myManitto) return undefined;
+    return getParticipantByName(myManitto);
+  }, [myManitto, getParticipantByName]);
 
   return (
     <PageLayout
@@ -69,7 +69,13 @@ const ManittoPage = () => {
             <p className="text-xl font-semibold text-black">나의 마니또를 확인하세요</p>
           </div>
 
-          <ProfileCard profile={manittoProfile} />
+          {!myManitto ? (
+            <ProfileCardSkeleton />
+          ) : manittoProfile ? (
+            <ProfileCard profile={manittoProfile} />
+          ) : (
+            <div className="text-center text-gray-600">참가자 정보를 찾을 수 없습니다</div>
+          )}
         </div>
       </main>
     </PageLayout>

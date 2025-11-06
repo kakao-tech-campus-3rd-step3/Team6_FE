@@ -2,6 +2,7 @@ import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import { stompService } from "@/services/stomp/StompService";
 import type { NavigateFn, RoomChangeResponse } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
+import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import type { IMessage } from "@stomp/stompjs";
 
 class StageNavigator {
@@ -84,33 +85,29 @@ class StageNavigator {
   }
 
   private handleMessage = (message: IMessage) => {
-    try {
-      if (!this.currentRoomId || !this.navigate) {
-        return;
-      }
+    if (!this.currentRoomId || !this.navigate) {
+      return;
+    }
 
-      const response = JSON.parse(message.body) as RoomChangeResponse;
+    const response = getMessageBody<RoomChangeResponse>(message);
+    if (!response) {
+      console.error("메시지 파싱 실패", message.body);
+      return;
+    }
 
-      const stage = response.data?.stage;
-      const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
+    const stage = response.data?.stage;
+    const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
 
-      if (stage) {
-        const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
-        if (pageUrl) {
-          if (lastEventType === "PREV") {
-            this.navigate(pageUrl, { state: { direction: "back" } });
-          } else {
-            this.navigate(pageUrl, { state: { direction: "forward" } });
-          }
-          this.lastEventTypeMap.delete(this.currentRoomId);
+    if (stage) {
+      const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
+      if (pageUrl) {
+        if (lastEventType === "PREV") {
+          this.navigate(pageUrl, { state: { direction: "back" } });
+        } else {
+          this.navigate(pageUrl, { state: { direction: "forward" } });
         }
+        this.lastEventTypeMap.delete(this.currentRoomId);
       }
-    } catch (error) {
-      const stompError = StompErrorFactory.fromMessageParseError(error, message.body);
-      console.error(stompError.message, {
-        code: stompError.code,
-        metadata: stompError.metadata,
-      });
     }
   };
 }
