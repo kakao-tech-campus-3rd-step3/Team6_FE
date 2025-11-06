@@ -200,6 +200,7 @@ describe("StageNavigator - 에러 핸들링", () => {
   describe("부분 데이터 손실", () => {
     beforeEach(() => {
       vi.mocked(stompService.subscribe).mockReturnValue(mockUnsubscribe);
+      vi.mocked(getPageFromStage).mockReset();
     });
 
     it("data.stage가 null이면 네비게이션하지 않아야 한다", () => {
@@ -237,7 +238,7 @@ describe("StageNavigator - 에러 핸들링", () => {
     it("getPageFromStage가 예외를 던져도 에러를 처리해야 한다", () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-      vi.mocked(getPageFromStage).mockImplementation(() => {
+      vi.mocked(getPageFromStage).mockImplementationOnce(() => {
         throw new Error("Invalid stage");
       });
 
