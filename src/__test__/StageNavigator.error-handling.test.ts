@@ -238,7 +238,8 @@ describe("StageNavigator - 에러 핸들링", () => {
     it("getPageFromStage가 예외를 던져도 에러를 처리해야 한다", () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-      vi.mocked(getPageFromStage).mockImplementationOnce(() => {
+      vi.mocked(getPageFromStage).mockReset();
+      vi.mocked(getPageFromStage).mockImplementation(() => {
         throw new Error("Invalid stage");
       });
 
@@ -257,6 +258,8 @@ describe("StageNavigator - 에러 핸들링", () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith("페이지 네비게이션 실패", expect.any(Error));
 
+      // cleanup
+      vi.mocked(getPageFromStage).mockReset();
       consoleErrorSpy.mockRestore();
     });
   });
