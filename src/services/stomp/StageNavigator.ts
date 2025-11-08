@@ -1,6 +1,5 @@
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
-import type { StompService } from "@/services/stomp/StompService";
-import type { NavigateFn, RoomChangeResponse } from "@/services/stomp/types";
+import type { NavigateFn, RoomChangeResponse, SignalService } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
 
 class StageNavigator {
@@ -10,7 +9,7 @@ class StageNavigator {
   private currentRoomId: string | null = null;
   private lastEventTypeMap = new Map<string, string>();
   private subscribers = new Set<string>();
-  private stompService: StompService | null = null;
+  private signalService: SignalService | null = null;
 
   private navigate: NavigateFn | null = null;
   private isHost = false;
@@ -28,8 +27,8 @@ class StageNavigator {
     this.navigate = navigate;
   }
 
-  public setStompService(service: StompService) {
-    this.stompService = service;
+  public setSignalService(service: SignalService) {
+    this.signalService = service;
   }
 
   public setIsHost(isHost: boolean) {
@@ -68,8 +67,8 @@ class StageNavigator {
     const destination = `/topic/room-stage/${roomId}`;
 
     try {
-      if (this.stompService) {
-        this.unsubscribeStomp = this.stompService.subscribe(destination, this.handleMessage);
+      if (this.signalService) {
+        this.unsubscribeStomp = this.signalService.subscribe<RoomChangeResponse>(destination, this.handleMessage);
       }
     } catch (error) {
       const stompError = StompErrorFactory.fromSubscriptionError(destination, error);

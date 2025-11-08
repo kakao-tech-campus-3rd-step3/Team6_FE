@@ -1,9 +1,9 @@
 import { MAX_RECONNECT_DELAY, RECONNECT_DELAY } from "@/constants/time-number";
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
-import type { StateListener, StompState, Unsubscribe } from "@/services/stomp/types";
+import type { SignalService, StateListener, StompState, Unsubscribe } from "@/services/stomp/types";
 import { Client, type IFrame, type IMessage, type StompSubscription } from "@stomp/stompjs";
 
-export class StompService {
+export class StompService implements SignalService {
   private tokenGetter: (() => string | null) | null = null;
 
   private client: Client | null = null;

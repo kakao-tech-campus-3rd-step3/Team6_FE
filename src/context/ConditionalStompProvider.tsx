@@ -8,6 +8,8 @@ interface ConditionalStompProviderProps {
   children: ReactNode;
 }
 
+const useMockSignal = import.meta.env.VITE_MOCK_SIGNAL === "true";
+
 export const ConditionalStompProvider = ({ children }: ConditionalStompProviderProps) => {
   const token = useAuthStore((state) => state.token);
   const location = useLocation();
@@ -19,7 +21,7 @@ export const ConditionalStompProvider = ({ children }: ConditionalStompProviderP
 
   const needsStompConnection = token && STOMP_REQUIRED_PATHS.some((path) => currentPath.startsWith(path));
 
-  const finalNeedsConnection = needsStompConnection || (token && isCreateRoomFlow);
+  const finalNeedsConnection = useMockSignal || needsStompConnection || (token && isCreateRoomFlow);
 
   if (finalNeedsConnection) {
     return <StompProvider>{children}</StompProvider>;
