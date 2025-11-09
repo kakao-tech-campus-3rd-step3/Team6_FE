@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -10,100 +10,134 @@ import { HOURS_IN_DAY, MINUTES_IN_HOUR, SECONDS_IN_MINUTE } from "./src/constant
 const MAX_CACHE_ENTRIES = 50;
 
 // https://vite.dev/config/
-export default defineConfig({
-  define: {
-    global: "globalThis",
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: { global: "globalThis" },
-    },
-  },
-  preview: {
-    port: 5173,
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return "vendor";
-          }
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+
+  const prodApiTarget = env.VITE_API_BASE_URL || "http://localhost";
+  const prodWsTarget = env.VITE_BROKER_URL || "ws://localhost";
+
+  return {
+    server: {
+      proxy: {
+        "/api/local": {
+          target: "http://localhost:8080",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/local/, ""),
+        },
+        "/ws/local": {
+          target: "ws://localhost:8080",
+          ws: true,
+          rewrite: (path) => path.replace(/^\/ws\/local/, ""),
+        },
+
+        "/api/prod": {
+          target: prodApiTarget,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/prod/, ""),
+        },
+        "/ws/prod": {
+          target: prodWsTarget,
+          ws: true,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/ws\/prod/, ""),
         },
       },
     },
-  },
-  plugins: [
-    react(),
-    tailwindcss(),
-    ViteImageOptimizer({
-      jpeg: { quality: 80 },
-      png: { quality: 90 },
-      webp: { quality: 75 },
-      svg: {
-        multipass: true,
+    define: {
+      global: "globalThis",
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: { global: "globalThis" },
       },
-    }),
-    VitePWA({
-      registerType: "autoUpdate",
-      manifest: {
-        id: "/",
-        name: "얼음땡",
-        short_name: "Icebreaking",
-        description: "얼음땡과 함께 간편하면서도 빠르게 아이스브레이킹을 시작하세요",
-        start_url: "/",
-        scope: "/",
-        lang: "ko-KR",
-        theme_color: "#687eff",
-        background_color: "#ffffff",
-        display: "standalone",
-        icons: [
-          {
-            src: "icon-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
+    },
+    preview: {
+      port: 5173,
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              return "vendor";
+            }
           },
-          {
-            src: "icon-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-          {
-            src: "icon-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-            purpose: "maskable",
-          },
-          {
-            src: "icon-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-            purpose: "maskable",
-          },
-        ],
+        },
       },
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,svg}", "**/assets/**/*.png"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\./i,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-cache",
-              expiration: {
-                maxEntries: MAX_CACHE_ENTRIES,
-                maxAgeSeconds: SECONDS_IN_MINUTE * MINUTES_IN_HOUR * HOURS_IN_DAY,
+    },
+    plugins: [
+      react(),
+      tailwindcss(),
+      ViteImageOptimizer({
+        jpeg: { quality: 80 },
+        png: { quality: 90 },
+        webp: { quality: 75 },
+        svg: {
+          multipass: true,
+        },
+      }),
+      VitePWA({
+        registerType: "autoUpdate",
+        manifest: {
+          id: "/",
+          name: "얼음땡",
+          short_name: "Icebreaking",
+          description: "얼음땡과 함께 간편하면서도 빠르게 아이스브레이킹을 시작하세요",
+          start_url: "/",
+          scope: "/",
+          lang: "ko-KR",
+          theme_color: "#687eff",
+          background_color: "#ffffff",
+          display: "standalone",
+          icons: [
+            {
+              src: "icon-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+            },
+            {
+              src: "icon-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+            },
+            {
+              src: "icon-192x192.png",
+              sizes: "192x192",
+              type: "image/png",
+              purpose: "maskable",
+            },
+            {
+              src: "icon-512x512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "maskable",
+            },
+          ],
+        },
+        workbox: {
+          globPatterns: ["**/*.{js,css,html,ico,svg}", "**/assets/**/*.png"],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/api\./i,
+              handler: "NetworkFirst",
+              options: {
+                cacheName: "api-cache",
+                expiration: {
+                  maxEntries: MAX_CACHE_ENTRIES,
+                  maxAgeSeconds: SECONDS_IN_MINUTE * MINUTES_IN_HOUR * HOURS_IN_DAY,
+                },
               },
             },
-          },
-        ],
-      },
-    }),
-  ],
+          ],
+        },
+      }),
+    ],
 
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "src"),
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
+      },
     },
-  },
+  };
 });

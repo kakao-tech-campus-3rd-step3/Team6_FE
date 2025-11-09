@@ -1,4 +1,7 @@
 import { MockSignalService, type SignalEventLog } from "@/__test__/mocks/MockSignalService";
+import type { StompService } from "@/services/stomp/StompService";
+import { SIGNAL_TARGETS, type SignalMode, type SignalTarget } from "@/services/stomp/signalTargets";
+import type { StompState } from "@/services/stomp/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -11,7 +14,6 @@ const STAGE_OPTIONS = [
   "ENDING_STAGE",
 ] as const;
 
-/** 프로젝트에서 사용하는 STOMP 구독 destination 템플릿 */
 const PRESET_DESTINATIONS = [
   { label: "Room Stage 변경", template: "/topic/room-stage/{roomId}" },
   { label: "대기실", template: "/topic/waiting-room/{roomId}" },
@@ -28,9 +30,12 @@ const formatTime = (ts: number) => {
 
 interface SignalDevToolProps {
   mockService: MockSignalService;
+  stompService: StompService;
+  currentMode: SignalMode;
+  onModeChange: (mode: SignalMode) => void;
 }
 
-export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
+export const SignalDevTool = ({ mockService, stompService, currentMode, onModeChange }: SignalDevToolProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [subscriptions, setSubscriptions] = useState<{ destination: string; count: number }[]>([]);
   const [eventLog, setEventLog] = useState<SignalEventLog[]>([]);
@@ -38,8 +43,13 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
   const [roomId, setRoomId] = useState("test-room-123");
   const [customDestination, setCustomDestination] = useState("");
   const [customPayload, setCustomPayload] = useState('{\n  "data": {\n    "stage": "GAME_LIST_STAGE"\n  }\n}');
-  const [activeTab, setActiveTab] = useState<"quick" | "custom" | "log">("quick");
+  const [activeTab, setActiveTab] = useState<"mode" | "quick" | "custom" | "log">("mode");
+  const [stompState, setStompState] = useState<StompState>(stompService.getState());
+
   const logEndRef = useRef<HTMLDivElement>(null);
+
+  const isMock = currentMode === "mock";
+  const activeTarget = SIGNAL_TARGETS.find((t: SignalTarget) => t.mode === currentMode)!;
 
   const refreshState = useCallback(() => {
     setSubscriptions(mockService.getSubscriptions());
@@ -51,6 +61,13 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
     const unsub = mockService.onChange(refreshState);
     return unsub;
   }, [mockService, refreshState]);
+
+  useEffect(() => {
+    const unsub = stompService.subscribeToState((state) => {
+      setStompState(state);
+    });
+    return unsub;
+  }, [stompService]);
 
   useEffect(() => {
     if (activeTab === "log") {
@@ -80,9 +97,27 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
       const parsed = JSON.parse(customPayload);
       mockService.simulateEvent(customDestination, parsed);
     } catch {
-      alert("❌ JSON 파싱 실패. 페이로드를 확인해주세요.");
+      alert("JSON 파싱 실패. 페이로드를 확인해주세요.");
     }
   };
+
+  const modeBadgeLabel = currentMode.toUpperCase();
+  const modeBadgeColor = isMock
+    ? "rgba(99, 102, 241, 0.3)"
+    : currentMode === "local"
+      ? "rgba(251, 191, 36, 0.3)"
+      : "rgba(34, 197, 94, 0.3)";
+  const modeBadgeTextColor = isMock ? "#a5b4fc" : currentMode === "local" ? "#fbbf24" : "#4ade80";
+  const buttonGradient = isMock
+    ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+    : currentMode === "local"
+      ? "linear-gradient(135deg, #d97706, #f59e0b)"
+      : "linear-gradient(135deg, #059669, #10b981)";
+  const buttonShadow = isMock
+    ? "0 4px 20px rgba(99, 102, 241, 0.4)"
+    : currentMode === "local"
+      ? "0 4px 20px rgba(245, 158, 11, 0.4)"
+      : "0 4px 20px rgba(16, 185, 129, 0.4)";
 
   const portalContent = (
     <div
@@ -95,18 +130,17 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
         fontSize: "12px",
       }}
     >
-      {/* Toggle Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           style={{
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            background: buttonGradient,
             color: "#fff",
             border: "none",
             borderRadius: "12px",
             padding: "10px 16px",
             cursor: "pointer",
-            boxShadow: "0 4px 20px rgba(99, 102, 241, 0.4)",
+            boxShadow: buttonShadow,
             display: "flex",
             alignItems: "center",
             gap: "8px",
@@ -116,19 +150,27 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 6px 24px rgba(99, 102, 241, 0.5)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "0 4px 20px rgba(99, 102, 241, 0.4)";
           }}
         >
-          <span style={{ fontSize: "16px" }}>🧪</span>
           Signal DevTool
+          <span
+            style={{
+              background: "rgba(255,255,255,0.2)",
+              borderRadius: "8px",
+              padding: "2px 8px",
+              fontSize: "10px",
+              fontWeight: 700,
+            }}
+          >
+            {modeBadgeLabel}
+          </span>
           {subscriptions.length > 0 && (
             <span
               style={{
-                background: "rgba(255,255,255,0.2)",
+                background: "rgba(255,255,255,0.15)",
                 borderRadius: "8px",
                 padding: "2px 8px",
                 fontSize: "10px",
@@ -140,7 +182,6 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
         </button>
       )}
 
-      {/* Panel */}
       {isOpen && (
         <div
           style={{
@@ -155,7 +196,6 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
             flexDirection: "column",
           }}
         >
-          {/* Header */}
           <div
             style={{
               display: "flex",
@@ -167,18 +207,19 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "18px" }}>🧪</span>
               <span style={{ fontWeight: 700, fontSize: "14px", color: "#c7d2fe" }}>Signal DevTool</span>
               <span
                 style={{
                   fontSize: "10px",
-                  background: "rgba(99, 102, 241, 0.3)",
+                  background: modeBadgeColor,
                   padding: "2px 8px",
                   borderRadius: "6px",
-                  color: "#a5b4fc",
+                  color: modeBadgeTextColor,
+                  fontWeight: 700,
+                  transition: "all 0.3s ease",
                 }}
               >
-                MOCK
+                {modeBadgeLabel}
               </span>
             </div>
             <button
@@ -204,7 +245,6 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
             </button>
           </div>
 
-          {/* Subscriptions Badge */}
           <div style={{ padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
             <div
               style={{
@@ -253,9 +293,8 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
             )}
           </div>
 
-          {/* Tabs */}
           <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-            {(["quick", "custom", "log"] as const).map((tab) => (
+            {(["mode", "quick", "custom", "log"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -272,19 +311,249 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
                   transition: "all 0.15s",
                 }}
               >
-                {tab === "quick" && "⚡ 빠른 전송"}
-                {tab === "custom" && "✏️ 커스텀"}
-                {tab === "log" && `📋 로그 (${eventLog.length})`}
+                {tab === "mode" && "모드"}
+                {tab === "quick" && "빠른 전송"}
+                {tab === "custom" && "커스텀"}
+                {tab === "log" && `로그 (${eventLog.length})`}
               </button>
             ))}
           </div>
 
-          {/* Tab Content */}
           <div style={{ padding: "12px 16px", overflowY: "auto", flex: 1 }}>
-            {/* Quick Send Tab */}
+            {activeTab === "mode" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div
+                  style={{
+                    background: "rgba(0,0,0,0.3)",
+                    borderRadius: "12px",
+                    padding: "16px",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#64748b",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    SignalService 구현체 전환
+                  </div>
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <label
+                      htmlFor="signal-mode-select"
+                      style={{ fontSize: "10px", color: "#64748b", display: "block", marginBottom: "4px" }}
+                    >
+                      구현체 선택
+                    </label>
+                    <select
+                      id="signal-mode-select"
+                      value={currentMode}
+                      onChange={(e) => onModeChange(e.target.value as SignalMode)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "8px",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        background: "rgba(0,0,0,0.4)",
+                        color: "#e2e8f0",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        outline: "none",
+                        cursor: "pointer",
+                        appearance: "none",
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M3 5l3 3 3-3'/%3E%3C/svg%3E")`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "right 12px center",
+                      }}
+                    >
+                      {SIGNAL_TARGETS.map((target: SignalTarget) => (
+                        <option key={target.mode} value={target.mode}>
+                          {target.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div
+                    style={{
+                      background: `${modeBadgeColor.replace("0.3", "0.1")}`,
+                      border: `1px solid ${modeBadgeColor.replace("0.3", "0.2")}`,
+                      borderRadius: "10px",
+                      padding: "12px",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        color: modeBadgeTextColor,
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {activeTarget.label}
+                    </div>
+                    <div style={{ fontSize: "10px", color: "#94a3b8", lineHeight: 1.6 }}>
+                      {activeTarget.description}
+                    </div>
+                    {activeTarget.wsUrl && (
+                      <div
+                        style={{
+                          fontSize: "10px",
+                          color: "#64748b",
+                          marginTop: "6px",
+                          wordBreak: "break-all",
+                        }}
+                      >
+                        WS: {activeTarget.wsUrl}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    background: "rgba(0,0,0,0.3)",
+                    borderRadius: "12px",
+                    padding: "16px",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#64748b",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    연결 상태
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "11px", color: "#94a3b8" }}>Connected</span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: isMock || stompState.isConnected ? "#4ade80" : "#f87171",
+                        }}
+                      >
+                        {isMock || stompState.isConnected ? "● Yes" : "○ No"}
+                      </span>
+                    </div>
+
+                    {!isMock && (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "11px", color: "#94a3b8" }}>Connecting</span>
+                        <span
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            color: stompState.isConnecting ? "#fbbf24" : "#64748b",
+                          }}
+                        >
+                          {stompState.isConnecting ? "Yes" : "No"}
+                        </span>
+                      </div>
+                    )}
+
+                    {!isMock && stompState.error && (
+                      <div
+                        style={{
+                          background: "rgba(239, 68, 68, 0.1)",
+                          border: "1px solid rgba(239, 68, 68, 0.2)",
+                          borderRadius: "8px",
+                          padding: "8px 10px",
+                          marginTop: "4px",
+                        }}
+                      >
+                        <div style={{ fontSize: "10px", color: "#f87171", fontWeight: 600, marginBottom: "2px" }}>
+                          Error: {stompState.error.code}
+                        </div>
+                        <div style={{ fontSize: "10px", color: "#fca5a5" }}>{stompState.error.message}</div>
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "11px", color: "#94a3b8" }}>Mode</span>
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 700,
+                          background: modeBadgeColor,
+                          color: modeBadgeTextColor,
+                          padding: "2px 8px",
+                          borderRadius: "6px",
+                        }}
+                      >
+                        {modeBadgeLabel}
+                      </span>
+                    </div>
+
+                    {!isMock && activeTarget.wsUrl && (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "11px", color: "#94a3b8" }}>WS URL</span>
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            color: "#64748b",
+                            maxWidth: "200px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                          title={activeTarget.wsUrl}
+                        >
+                          {activeTarget.wsUrl}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    background: "rgba(251, 191, 36, 0.08)",
+                    border: "1px solid rgba(251, 191, 36, 0.15)",
+                    borderRadius: "10px",
+                    padding: "10px 12px",
+                    fontSize: "10px",
+                    color: "#fbbf24",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  모드 전환 시 기존 구독이 재설정될 수 있습니다.
+                  <br />
+                  Prod → Mock 전환 시 기존 STOMP 연결이 해제됩니다.
+                </div>
+              </div>
+            )}
+
             {activeTab === "quick" && (
               <div>
-                {/* Room ID 입력 */}
+                {!isMock && (
+                  <div
+                    style={{
+                      background: "rgba(251, 191, 36, 0.1)",
+                      border: "1px solid rgba(251, 191, 36, 0.2)",
+                      borderRadius: "8px",
+                      padding: "8px 10px",
+                      marginBottom: "10px",
+                      fontSize: "10px",
+                      color: "#fbbf24",
+                    }}
+                  >
+                    Prod 모드에서는 빠른 전송이 Mock 채널로만 발송됩니다. 모드 탭에서 Mock으로 전환해 주세요.
+                  </div>
+                )}
+
                 <div style={{ marginBottom: "10px" }}>
                   <label style={{ fontSize: "10px", color: "#64748b", display: "block", marginBottom: "4px" }}>
                     Room ID
@@ -349,9 +618,22 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
               </div>
             )}
 
-            {/* Custom Tab */}
             {activeTab === "custom" && (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {!isMock && (
+                  <div
+                    style={{
+                      background: "rgba(251, 191, 36, 0.1)",
+                      border: "1px solid rgba(251, 191, 36, 0.2)",
+                      borderRadius: "8px",
+                      padding: "8px 10px",
+                      fontSize: "10px",
+                      color: "#fbbf24",
+                    }}
+                  >
+                    Prod 모드에서는 커스텀 이벤트가 Mock 채널로만 발송됩니다.
+                  </div>
+                )}
                 <div>
                   <label
                     htmlFor="custom-dest-select"
@@ -447,12 +729,11 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
                     e.currentTarget.style.transform = "scale(1)";
                   }}
                 >
-                  🚀 이벤트 전송
+                  이벤트 전송
                 </button>
               </div>
             )}
 
-            {/* Log Tab */}
             {activeTab === "log" && (
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
@@ -470,7 +751,7 @@ export const SignalDevTool = ({ mockService }: SignalDevToolProps) => {
                         fontSize: "10px",
                       }}
                     >
-                      🗑 초기화
+                      초기화
                     </button>
                   )}
                 </div>

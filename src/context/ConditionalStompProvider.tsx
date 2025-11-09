@@ -21,7 +21,8 @@ export const ConditionalStompProvider = ({ children }: ConditionalStompProviderP
 
   const needsStompConnection = token && STOMP_REQUIRED_PATHS.some((path) => currentPath.startsWith(path));
 
-  const finalNeedsConnection = useMockSignal || needsStompConnection || (token && isCreateRoomFlow);
+  const isDev = import.meta.env.DEV;
+  const finalNeedsConnection = isDev || useMockSignal || needsStompConnection || (token && isCreateRoomFlow);
 
   if (finalNeedsConnection) {
     return <StompProvider>{children}</StompProvider>;
