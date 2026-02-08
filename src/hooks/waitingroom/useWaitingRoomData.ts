@@ -1,8 +1,6 @@
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { UseWaitingRoomDataProps, WaitingRoomResponse } from "@/hooks/waitingroom/types";
-import { getMessageBody } from "@/utils/stomp/getMessageBody";
 import { showToast } from "@/utils/toast";
-import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useReducer } from "react";
 
 import { waitingRoomReducer } from "./waitingRoomReducer";
@@ -16,15 +14,7 @@ export const useWaitingRoomData = ({ roomId, isHost }: UseWaitingRoomDataProps) 
     maxParticipants: 0,
   });
 
-  const handleRoomMessage = useCallback((message: IMessage) => {
-    const response = getMessageBody<WaitingRoomResponse>(message);
-
-    if (!response) {
-      console.error("대기방 메시지 파싱 실패:", message.body);
-      showToast.error("메시지 파싱에 실패했습니다.");
-      return;
-    }
-
+  const handleRoomMessage = useCallback((response: WaitingRoomResponse) => {
     if (!response.success) {
       showToast.error("메시지 파싱에 실패했습니다.");
       return;

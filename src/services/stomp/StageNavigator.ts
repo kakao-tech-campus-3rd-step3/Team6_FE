@@ -1,9 +1,7 @@
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
-import { stompService } from "@/services/stomp/StompService";
+import type { StompService } from "@/services/stomp/StompService";
 import type { NavigateFn, RoomChangeResponse } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
-import { getMessageBody } from "@/utils/stomp/getMessageBody";
-import type { IMessage } from "@stomp/stompjs";
 
 class StageNavigator {
   private static instance: StageNavigator;
@@ -12,6 +10,7 @@ class StageNavigator {
   private currentRoomId: string | null = null;
   private lastEventTypeMap = new Map<string, string>();
   private subscribers = new Set<string>();
+  private stompService: StompService | null = null;
 
   private navigate: NavigateFn | null = null;
   private isHost = false;
@@ -27,6 +26,10 @@ class StageNavigator {
 
   public setNavigate(navigate: NavigateFn) {
     this.navigate = navigate;
+  }
+
+  public setStompService(service: StompService) {
+    this.stompService = service;
   }
 
   public setIsHost(isHost: boolean) {
@@ -65,7 +68,9 @@ class StageNavigator {
     const destination = `/topic/room-stage/${roomId}`;
 
     try {
-      this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+      if (this.stompService) {
+        this.unsubscribeStomp = this.stompService.subscribe(destination, this.handleMessage);
+      }
     } catch (error) {
       const stompError = StompErrorFactory.fromSubscriptionError(destination, error);
       console.error(stompError.message, {
@@ -84,14 +89,8 @@ class StageNavigator {
     }
   }
 
-  private handleMessage = (message: IMessage) => {
+  private handleMessage = (response: RoomChangeResponse) => {
     if (!this.currentRoomId || !this.navigate) {
-      return;
-    }
-
-    const response = getMessageBody<RoomChangeResponse>(message);
-    if (!response) {
-      console.error("메시지 파싱 실패", message.body);
       return;
     }
 

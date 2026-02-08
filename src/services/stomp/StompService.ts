@@ -1,10 +1,10 @@
+import { MAX_RECONNECT_DELAY, RECONNECT_DELAY } from "@/constants/time-number";
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
 import type { StateListener, StompState, Unsubscribe } from "@/services/stomp/types";
-import { useAuthStore } from "@/store/authStore";
 import { Client, type IFrame, type IMessage, type StompSubscription } from "@stomp/stompjs";
 
-class StompService {
-  private static instance: StompService;
+export class StompService {
+  private tokenGetter: (() => string | null) | null = null;
 
   private client: Client | null = null;
   private state: StompState = {
@@ -12,17 +12,12 @@ class StompService {
     isConnecting: false,
     error: null,
   };
+  private retryCount = 0;
+  private reconnectTimer: NodeJS.Timeout | null = null;
 
   private stateListeners = new Set<StateListener>();
-  private messageHandlers = new Map<string, Map<string, (message: IMessage) => void>>();
+  private messageHandlers = new Map<string, Map<string, (body: unknown, message: IMessage) => void>>();
   private stompSubscriptions = new Map<string, StompSubscription>();
-
-  public static getInstance(): StompService {
-    if (!StompService.instance) {
-      StompService.instance = new StompService();
-    }
-    return StompService.instance;
-  }
 
   private setState(newState: Partial<StompState>) {
     this.state = { ...this.state, ...newState };
@@ -45,7 +40,9 @@ class StompService {
     return this.state;
   }
 
-  public initialize(brokerURL: string, token: string | null) {
+  public initialize(brokerURL: string, tokenGetter: () => string | null) {
+    this.tokenGetter = tokenGetter;
+    const token = this.tokenGetter();
     if (this.client && this.client.active) {
       this.deactivate();
     }
@@ -59,10 +56,12 @@ class StompService {
     this.client = new Client({
       brokerURL,
       connectHeaders: { Authorization: `Bearer ${token}` },
-      reconnectDelay: 5000,
+      reconnectDelay: 0,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
+        this.retryCount = 0;
+        this.clearReconnectTimer();
         this.setState({ isConnected: true, isConnecting: false, error: null });
       },
       onDisconnect: () => {
@@ -81,9 +80,32 @@ class StompService {
         if (!event.wasClean) {
           const error = StompErrorFactory.fromWebSocketClose(event);
           this.setState({ isConnecting: true, error });
+          this.scheduleReconnect();
         }
       },
     });
+  }
+
+  private scheduleReconnect() {
+    this.clearReconnectTimer();
+
+    const EXPONENT_BASE = 2;
+    const backoff = Math.min(MAX_RECONNECT_DELAY, RECONNECT_DELAY * Math.pow(EXPONENT_BASE, this.retryCount));
+    const JITTER_RANGE = 1000;
+    const jitter = Math.random() * JITTER_RANGE;
+    const delay = backoff + jitter;
+
+    this.reconnectTimer = setTimeout(() => {
+      this.retryCount++;
+      this.activate();
+    }, delay);
+  }
+
+  private clearReconnectTimer() {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
   }
 
   public activate() {
@@ -102,6 +124,7 @@ class StompService {
     if (this.client?.active) {
       try {
         this.client.deactivate();
+        this.clearReconnectTimer();
         this.messageHandlers.clear();
         this.stompSubscriptions.clear();
         this.setState({ isConnected: false, isConnecting: false, error: null });
@@ -123,7 +146,7 @@ class StompService {
     }
 
     try {
-      const token = useAuthStore.getState().token;
+      const token = this.tokenGetter ? this.tokenGetter() : null;
       const headers: Record<string, string> = { ...(options.headers ?? {}) };
 
       const hasAuthHeader = Object.keys(headers).some((k) => k.toLowerCase() === "authorization");
@@ -152,13 +175,13 @@ class StompService {
     }
   }
 
-  public subscribe(destination: string, callback: (message: IMessage) => void): Unsubscribe {
+  public subscribe<T = unknown>(destination: string, callback: (body: T, message: IMessage) => void): Unsubscribe {
     const subscriptionId = `sub-${Date.now()}-${Math.random()}`;
 
     if (!this.messageHandlers.has(destination)) {
       this.messageHandlers.set(destination, new Map());
     }
-    this.messageHandlers.get(destination)!.set(subscriptionId, callback);
+    this.messageHandlers.get(destination)!.set(subscriptionId, callback as (body: unknown, message: IMessage) => void);
 
     if (!this.stompSubscriptions.has(destination)) {
       if (this.client && this.state.isConnected) {
@@ -166,7 +189,8 @@ class StompService {
           const subscription = this.client.subscribe(destination, (message: IMessage) => {
             this.messageHandlers.get(destination)?.forEach((handler) => {
               try {
-                handler(message);
+                const parsedBody = JSON.parse(message.body) as T;
+                handler(parsedBody, message);
               } catch (err) {
                 const error = StompErrorFactory.fromMessageParseError(err, message.body);
                 this.setState({ error });
@@ -211,5 +235,3 @@ class StompService {
     return null;
   }
 }
-
-export const stompService = StompService.getInstance();

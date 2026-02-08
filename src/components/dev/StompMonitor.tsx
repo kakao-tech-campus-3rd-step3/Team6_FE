@@ -1,7 +1,7 @@
 import { Row } from "@/components/dev/Row";
 import { Section } from "@/components/dev/Section";
 import type { DebugInfo, PerformanceWithMemory } from "@/components/dev/types";
-import { stompService } from "@/services/stomp/StompService";
+import { useStompContext } from "@/context/StompContext";
 import { useEffect, useState } from "react";
 
 const MEMORY_LEAK_THRESHOLD = {
@@ -65,6 +65,7 @@ const MemoryUsageGraph = ({
 };
 
 export const StompMonitor = () => {
+  const stompService = useStompContext();
   const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [memoryUsage, setMemoryUsage] = useState<{ used: number; total: number; limit: number } | null>(null);
   const [memoryHistory, setMemoryHistory] = useState<number[]>([]);
@@ -92,7 +93,7 @@ export const StompMonitor = () => {
     }, REFRESH_INTERVAL_MS);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [stompService]);
 
   if (!import.meta.env.DEV) return null;
   if (!debugInfo) return null;
