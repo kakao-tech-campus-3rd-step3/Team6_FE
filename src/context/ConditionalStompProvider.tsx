@@ -1,5 +1,5 @@
 import { STOMP_REQUIRED_PATHS } from "@/constants";
-import { StompProvider } from "@/context/StompProvider";
+import { StompProvider } from "@/context/StompContext";
 import { useAuthStore } from "@/store/authStore";
 import { type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
@@ -10,7 +10,6 @@ interface ConditionalStompProviderProps {
 
 export const ConditionalStompProvider = ({ children }: ConditionalStompProviderProps) => {
   const token = useAuthStore((state) => state.token);
-  const brokerURL = import.meta.env.VITE_BROKER_URL || "ws://localhost:8080/ws";
   const location = useLocation();
 
   const currentPath = location.pathname;
@@ -23,11 +22,7 @@ export const ConditionalStompProvider = ({ children }: ConditionalStompProviderP
   const finalNeedsConnection = needsStompConnection || (token && isCreateRoomFlow);
 
   if (finalNeedsConnection) {
-    return (
-      <StompProvider brokerURL={brokerURL} token={token}>
-        {children}
-      </StompProvider>
-    );
+    return <StompProvider>{children}</StompProvider>;
   }
 
   return <>{children}</>;

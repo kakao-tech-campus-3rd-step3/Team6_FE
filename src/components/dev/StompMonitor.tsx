@@ -1,7 +1,7 @@
 import { Row } from "@/components/dev/Row";
 import { Section } from "@/components/dev/Section";
 import type { DebugInfo, PerformanceWithMemory } from "@/components/dev/types";
-import { useStompContext } from "@/context/StompContext";
+import { useStompContext } from "@/context/useStompContext";
 import { useEffect, useState } from "react";
 
 const MEMORY_LEAK_THRESHOLD = {

@@ -1,4 +1,4 @@
-import { useStompContext } from "@/context/StompContext";
+import { useStompContext } from "@/context/useStompContext";
 import type { StompState } from "@/services/stomp/types";
 import { useEffect, useState } from "react";
 

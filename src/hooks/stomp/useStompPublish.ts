@@ -1,4 +1,4 @@
-import { useStompContext } from "@/context/StompContext";
+import { useStompContext } from "@/context/useStompContext";
 import type { StompPublishOptions, StompPublishReturn } from "@/hooks/stomp/types";
 import { useCallback } from "react";
 
