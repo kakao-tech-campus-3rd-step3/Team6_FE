@@ -15,4 +15,8 @@ export type StateListener = (state: StompState) => void;
 
 export type Unsubscribe = () => void;
 
+export interface SignalService {
+  subscribe<T = unknown>(destination: string, callback: (data: T) => void): Unsubscribe;
+}
+
 export type NavigateFn = NavigateFunction;

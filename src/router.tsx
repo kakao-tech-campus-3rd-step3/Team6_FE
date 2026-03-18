@@ -1,10 +1,14 @@
 import { AnimatedRoutes } from "@/components/routing/AnimatedRoutes";
 import CreateRoomPage from "@/pages/CreateRoomPage";
+import EndingPage from "@/pages/EndingPage";
 import LandingPage from "@/pages/LandingPage";
+import ManittoPage from "@/pages/ManittoPage";
 import MenuSelectPage from "@/pages/MenuSelectPage";
 import ProfileCheckPage from "@/pages/ProfileCheckPage";
 import ProfilePage from "@/pages/ProfilePage";
 import ProfileViewPage from "@/pages/ProfileViewPage";
+import RandomRoulettePage from "@/pages/RandomRoulettePage";
+import TopicRecommendPage from "@/pages/TopicRecommendPage";
 import WaitingRoomPage from "@/pages/WaitingRoomPage";
 import { authLoader } from "@/utils/authLoader";
 import { type RouteObject, createBrowserRouter } from "react-router-dom";
@@ -46,39 +50,19 @@ const routes: RouteObject[] = [
       },
       {
         path: "random-roulette",
-        lazy: async () => {
-          const RandomRoulettePage = await import("@/pages/RandomRoulettePage");
-          return {
-            Component: RandomRoulettePage.default,
-          };
-        },
+        Component: RandomRoulettePage,
       },
       {
         path: "manitto",
-        lazy: async () => {
-          const ManittoPage = await import("@/pages/ManittoPage");
-          return {
-            Component: ManittoPage.default,
-          };
-        },
+        Component: ManittoPage,
       },
       {
         path: "topic-recommend",
-        lazy: async () => {
-          const TopicRecommendPage = await import("@/pages/TopicRecommendPage");
-          return {
-            Component: TopicRecommendPage.default,
-          };
-        },
+        Component: TopicRecommendPage,
       },
       {
         path: "ending",
-        lazy: async () => {
-          const EndingPage = await import("@/pages/EndingPage");
-          return {
-            Component: EndingPage.default,
-          };
-        },
+        Component: EndingPage,
       },
     ],
   },

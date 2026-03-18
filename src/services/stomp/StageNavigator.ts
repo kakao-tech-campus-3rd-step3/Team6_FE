@@ -1,8 +1,6 @@
 import { StompErrorFactory } from "@/errors/stomp-error-factory";
-import { stompService } from "@/services/stomp/StompService";
-import type { NavigateFn, RoomChangeResponse } from "@/services/stomp/types";
+import type { NavigateFn, RoomChangeResponse, SignalService } from "@/services/stomp/types";
 import { getPageFromStage } from "@/utils/stage";
-import type { IMessage } from "@stomp/stompjs";
 
 class StageNavigator {
   private static instance: StageNavigator;
@@ -11,6 +9,7 @@ class StageNavigator {
   private currentRoomId: string | null = null;
   private lastEventTypeMap = new Map<string, string>();
   private subscribers = new Set<string>();
+  private signalService: SignalService | null = null;
 
   private navigate: NavigateFn | null = null;
   private isHost = false;
@@ -26,6 +25,10 @@ class StageNavigator {
 
   public setNavigate(navigate: NavigateFn) {
     this.navigate = navigate;
+  }
+
+  public setSignalService(service: SignalService) {
+    this.signalService = service;
   }
 
   public setIsHost(isHost: boolean) {
@@ -64,7 +67,9 @@ class StageNavigator {
     const destination = `/topic/room-stage/${roomId}`;
 
     try {
-      this.unsubscribeStomp = stompService.subscribe(destination, this.handleMessage);
+      if (this.signalService) {
+        this.unsubscribeStomp = this.signalService.subscribe<RoomChangeResponse>(destination, this.handleMessage);
+      }
     } catch (error) {
       const stompError = StompErrorFactory.fromSubscriptionError(destination, error);
       console.error(stompError.message, {
@@ -83,18 +88,16 @@ class StageNavigator {
     }
   }
 
-  private handleMessage = (message: IMessage) => {
-    try {
-      if (!this.currentRoomId || !this.navigate) {
-        return;
-      }
+  private handleMessage = (response: RoomChangeResponse) => {
+    if (!this.currentRoomId || !this.navigate) {
+      return;
+    }
 
-      const response = JSON.parse(message.body) as RoomChangeResponse;
+    const stage = response.data?.stage;
+    const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
 
-      const stage = response.data?.stage;
-      const lastEventType = this.lastEventTypeMap.get(this.currentRoomId);
-
-      if (stage) {
+    if (stage) {
+      try {
         const pageUrl = getPageFromStage(stage, this.currentRoomId, this.isHost);
         if (pageUrl) {
           if (lastEventType === "PREV") {
@@ -104,13 +107,9 @@ class StageNavigator {
           }
           this.lastEventTypeMap.delete(this.currentRoomId);
         }
+      } catch (error) {
+        console.error("페이지 네비게이션 실패", error);
       }
-    } catch (error) {
-      const stompError = StompErrorFactory.fromMessageParseError(error, message.body);
-      console.error(stompError.message, {
-        code: stompError.code,
-        metadata: stompError.metadata,
-      });
     }
   };
 }

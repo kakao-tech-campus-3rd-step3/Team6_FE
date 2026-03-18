@@ -2,7 +2,6 @@ import type { CreateRoomActionReturn } from "@/hooks/createroom";
 import type { CreateRoomResponse } from "@/hooks/createroom/types";
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
 import type { CreateRoomFormSchemaType } from "@/model/CreateRoomFormSchema";
-import type { IMessage } from "@stomp/stompjs";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,19 +15,18 @@ export const useCreateRoomAction = (
   const [createdRoomId, setCreatedRoomId] = useState<string | null>(null);
   const [shouldSubscribe, setShouldSubscribe] = useState(true);
 
-  const handleWaitingRoomMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as CreateRoomResponse;
+  const handleWaitingRoomMessage = useCallback((response: CreateRoomResponse) => {
+    if (!response.success) {
+      setIsCreating(false);
+      return;
+    }
 
-      const newRoomId = response.data?.roomId;
+    const newRoomId = response.data?.roomId;
 
-      if (newRoomId && response.success) {
-        setCreatedRoomId(newRoomId);
-        setShouldSubscribe(false);
-      } else {
-        setIsCreating(false);
-      }
-    } catch {
+    if (newRoomId) {
+      setCreatedRoomId(newRoomId);
+      setShouldSubscribe(false);
+    } else {
       setIsCreating(false);
     }
   }, []);

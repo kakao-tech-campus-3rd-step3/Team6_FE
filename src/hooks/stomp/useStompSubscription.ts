@@ -1,14 +1,15 @@
-import { stompService } from "@/services/stomp/StompService";
+import { useStompContext } from "@/context/useStompContext";
 import { type IMessage } from "@stomp/stompjs";
 import { useEffect, useRef } from "react";
 
 import type { StompSubscriptionReturn } from "./types";
 import { useStompConnection } from "./useStompConnection";
 
-export const useStompSubscription = (
+export const useStompSubscription = <T = unknown>(
   destination: string | null,
-  onMessage: (message: IMessage) => void,
+  onMessage: (body: T, message: IMessage) => void,
 ): StompSubscriptionReturn => {
+  const stompService = useStompContext();
   const { isConnected } = useStompConnection();
   const savedOnMessage = useRef(onMessage);
 
@@ -21,14 +22,14 @@ export const useStompSubscription = (
       return;
     }
 
-    const messageCallback = (message: IMessage) => {
-      savedOnMessage.current(message);
+    const messageCallback = (body: T, message: IMessage) => {
+      savedOnMessage.current(body, message);
     };
 
-    const unsubscribe = stompService.subscribe(destination, messageCallback);
+    const unsubscribe = stompService.subscribe<T>(destination, messageCallback);
 
     return () => {
       unsubscribe();
     };
-  }, [destination, isConnected]);
+  }, [destination, isConnected, stompService]);
 };

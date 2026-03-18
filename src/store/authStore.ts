@@ -19,9 +19,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "icebreaking-auth",
       storage: createJSONStorage(() => localStorage),
-      //TODO : 토큰 저장 방식을 어떻게 할지, XSS생각하면 토큰을 메모리에 저장
-      // partialize를 적용하면 새로고침 시 토큰이 사라져 재접속(재연결)시 힘들 수 있음
-      // partialize: (state) => ({ id: state.id }),
     },
   ),
 );

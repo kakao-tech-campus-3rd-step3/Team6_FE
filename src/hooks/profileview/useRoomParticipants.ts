@@ -1,5 +1,5 @@
 import { useStompPublish, useStompSubscription } from "@/hooks/stomp";
-import type { IMessage } from "@stomp/stompjs";
+import { useUserStore } from "@/store/useUserStore";
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -16,19 +16,17 @@ export const useRoomParticipants = (roomId: string) => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const handleParticipantMessage = useCallback((message: IMessage) => {
-    try {
-      const response = JSON.parse(message.body) as RoomParticipantResponse;
-
+  const roomParticipants = useUserStore((state) => state.setParticipants);
+  const handleParticipantMessage = useCallback(
+    (response: RoomParticipantResponse) => {
       if (response.success && Array.isArray(response.data)) {
         setParticipants(response.data);
+        roomParticipants(response.data);
         setIsLoading(false);
       }
-    } catch (error) {
-      console.error("참여자 목록 파싱 실패:", error);
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    [roomParticipants],
+  );
 
   useStompSubscription(roomId ? `/topic/room-participant/${roomId}` : null, handleParticipantMessage);
 

@@ -1,12 +1,11 @@
-import { stompService } from "@/services/stomp/StompService";
-import { useAuthStore } from "@/store/authStore";
+import { StompService } from "@/services/stomp/StompService";
 import { Client, type IFrame, type IMessage, type StompSubscription } from "@stomp/stompjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@stomp/stompjs");
-vi.mock("@/store/authStore");
 
 describe("StompService", () => {
+  let stompService: StompService;
   let mockSubscription: StompSubscription;
 
   const createMockClient = (options: Partial<Client> = {}): Partial<Client> => {
@@ -23,19 +22,14 @@ describe("StompService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    stompService["messageHandlers"].clear();
-    stompService["stompSubscriptions"].clear();
-    stompService["client"] = null;
-    stompService["state"] = { isConnected: false, isConnecting: false, error: null };
+    stompService = new StompService();
 
     mockSubscription = { unsubscribe: vi.fn() } as unknown as StompSubscription;
   });
 
   describe("초기화", () => {
     it("토큰이 없다면 클라이언트를 생성하지 않아야 한다.", () => {
-      vi.mocked(useAuthStore.getState).mockReturnValue({ token: null, id: null, setAuth: vi.fn(), clearAuth: vi.fn() });
-
-      stompService.initialize("ws://test-url", null);
+      stompService.initialize("ws://test-url", () => null);
 
       expect(Client).not.toHaveBeenCalled();
       const state = stompService.getState();
@@ -47,14 +41,7 @@ describe("StompService", () => {
     it("토큰이 있을 때, 클라이언트를 생성해야 한다.", () => {
       const brokerURL = "ws://test-url";
       const token = "test-token";
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        token: "test-token",
-        id: null,
-        setAuth: vi.fn(),
-        clearAuth: vi.fn(),
-      });
-
-      stompService.initialize(brokerURL, token);
+      stompService.initialize(brokerURL, () => token);
 
       expect(Client).toHaveBeenCalledOnce();
       expect(Client).toHaveBeenCalledWith(
@@ -70,7 +57,7 @@ describe("StompService", () => {
       const mockClient = createMockClient({ active: false, connected: false });
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService.activate();
 
       expect(mockClient.activate).toHaveBeenCalledOnce();
@@ -80,7 +67,7 @@ describe("StompService", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService.activate();
 
       expect(mockClient.activate).not.toHaveBeenCalled();
@@ -97,14 +84,7 @@ describe("StompService", () => {
     it("연결된 상태에서 publish 호출 시 올바른 파라미터로 호출되어야 한다.", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        token: "test-token",
-        id: null,
-        setAuth: vi.fn(),
-        clearAuth: vi.fn(),
-      });
-
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       const destination = "/test/destination";
@@ -126,14 +106,7 @@ describe("StompService", () => {
     it("커스텀 헤더와 함께 publish 호출 시 헤더가 병합되어야 한다.", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
-      vi.mocked(useAuthStore.getState).mockReturnValue({
-        token: "test-token",
-        id: null,
-        setAuth: vi.fn(),
-        clearAuth: vi.fn(),
-      });
-
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       const customHeaders = { "custom-header": "custom-value" };
@@ -155,7 +128,7 @@ describe("StompService", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       const destination = "/test/destination";
@@ -170,7 +143,7 @@ describe("StompService", () => {
       const mockClient = createMockClient({ active: false, connected: false });
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: false, isConnecting: false, error: null };
 
       const callback = vi.fn();
@@ -183,7 +156,7 @@ describe("StompService", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
       stompService["client"] = mockClient as Client;
 
@@ -206,7 +179,7 @@ describe("StompService", () => {
       const mockClient = createMockClient();
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService.deactivate();
 
       expect(mockClient.deactivate).toHaveBeenCalledOnce();
@@ -216,7 +189,7 @@ describe("StompService", () => {
       const mockClient = createMockClient({ active: false });
       vi.mocked(Client).mockImplementation(() => mockClient as Client);
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService.deactivate();
 
       expect(mockClient.deactivate).not.toHaveBeenCalled();
@@ -283,7 +256,7 @@ describe("StompService", () => {
         return mockSubscription;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
       stompService["client"] = mockClient as Client;
 
@@ -293,7 +266,7 @@ describe("StompService", () => {
       const testMessage = { body: '{"data":"test"}' } as unknown as IMessage;
       messageHandler?.(testMessage);
 
-      expect(callback).toHaveBeenCalledWith(testMessage);
+      expect(callback).toHaveBeenCalledWith({ data: "test" }, testMessage);
     });
 
     it("같은 destination에 여러 핸들러 등록 시 모두 호출되어야 한다", () => {
@@ -306,7 +279,7 @@ describe("StompService", () => {
         return mockSubscription;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
       stompService["client"] = mockClient as Client;
 
@@ -321,9 +294,9 @@ describe("StompService", () => {
       const testMessage = { body: '{"data":"test"}' } as unknown as IMessage;
       messageHandler?.(testMessage);
 
-      expect(callback1).toHaveBeenCalledWith(testMessage);
-      expect(callback2).toHaveBeenCalledWith(testMessage);
-      expect(callback3).toHaveBeenCalledWith(testMessage);
+      expect(callback1).toHaveBeenCalledWith({ data: "test" }, testMessage);
+      expect(callback2).toHaveBeenCalledWith({ data: "test" }, testMessage);
+      expect(callback3).toHaveBeenCalledWith({ data: "test" }, testMessage);
     });
 
     it("핸들러에서 에러 발생 시 에러 상태가 설정되어야 한다", () => {
@@ -336,7 +309,7 @@ describe("StompService", () => {
         return mockSubscription;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
       stompService["client"] = mockClient as Client;
 
@@ -363,7 +336,7 @@ describe("StompService", () => {
         return mockSubscription;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
       stompService["client"] = mockClient as Client;
 
@@ -393,7 +366,7 @@ describe("StompService", () => {
         return mockClient as Client;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       onDisconnect?.({} as IFrame);
@@ -412,7 +385,7 @@ describe("StompService", () => {
         return mockClient as Client;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       const closeEvent = {
@@ -438,7 +411,7 @@ describe("StompService", () => {
         return mockClient as Client;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
       stompService["state"] = { isConnected: true, isConnecting: false, error: null };
 
       const closeEvent = {
@@ -454,14 +427,13 @@ describe("StompService", () => {
       expect(state.isConnecting).toBe(false);
     });
 
-    it("재연결 설정이 5초로 되어 있어야 한다", () => {
+    it("재연결 설정이 0(수동 관리)으로 되어 있어야 한다", () => {
       vi.mocked(Client).mockImplementation((config) => {
-        // eslint-disable-next-line no-magic-numbers
-        expect(config?.reconnectDelay).toBe(5000);
+        expect(config?.reconnectDelay).toBe(0);
         return createMockClient() as Client;
       });
 
-      stompService.initialize("ws://test-url", "test-token");
+      stompService.initialize("ws://test-url", () => "test-token");
     });
   });
 });
